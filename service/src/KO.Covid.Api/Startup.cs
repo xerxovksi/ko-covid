@@ -3,9 +3,9 @@ namespace KO.Covid.Api
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
     using KO.Covid.Api.Filters;
+    using KO.Covid.Api.IoC;
     using KO.Covid.Application;
-    using KO.Covid.Application.Contracts;
-    using KO.Covid.Infrastructure.ApplicationInsights;
+    using KO.Covid.Infrastructure.IoC;
     using MediatR;
     using MediatR.Extensions.FluentValidation.AspNetCore;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,7 +16,6 @@ namespace KO.Covid.Api
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Logging.ApplicationInsights;
     using Microsoft.IdentityModel.Tokens;
     using System.Reflection;
     using System.Text.Json.Serialization;
@@ -49,19 +48,6 @@ namespace KO.Covid.Api
                         new JsonStringEnumConverter());
                 });
 
-            services.AddApplicationInsightsTelemetry();
-            services.AddScoped(typeof(ITelemetryLogger<>), typeof(ApplicationInsightsLogger<>));
-            services.AddLogging(
-                builder =>
-                {
-                    builder.AddApplicationInsights(
-                        this.Configuration["KOCInstrumentationKey"]);
-
-                    builder.AddFilter<ApplicationInsightsLoggerProvider>(
-                        "",
-                        LogLevel.Information);
-                });
-
             services.AddOptions();
 
             var assembly = typeof(Startup).GetTypeInfo().Assembly;
@@ -73,17 +59,20 @@ namespace KO.Covid.Api
                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                .AddJwtBearer(options =>
                {
-                   options.Authority = this.Configuration["KOCIdentityAuthority"];
-                   options.Audience = this.Configuration["KOCIdentityAudience"];
-                   options.TokenValidationParameters = new TokenValidationParameters
-                   {
-                       ValidIssuer = this.Configuration["KOCIdentityIssuer"],
-                       ValidAudience = this.Configuration["KOCIdentityAudience"],
-                       ValidateIssuer = true,
-                       ValidateAudience = true,
-                       ValidateLifetime = true
-                   };
+                   //options.Authority = this.Configuration["KOCIdentityAuthority"];
+                   //options.Audience = this.Configuration["KOCIdentityAudience"];
+                   //options.TokenValidationParameters = new TokenValidationParameters
+                   //{
+                   //    ValidIssuer = this.Configuration["KOCIdentityIssuer"],
+                   //    ValidAudience = this.Configuration["KOCIdentityAudience"],
+                   //    ValidateIssuer = true,
+                   //    ValidateAudience = true,
+                   //    ValidateLifetime = true
+                   //};
                });
+
+            services.AddApplicationInsights(this.Configuration["KOCInstrumentationKey"]);
+            services.AddRedisCache(this.Configuration["KOCCacheConnectionString"]);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -113,6 +102,8 @@ namespace KO.Covid.Api
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
+            builder.RegisterModule(
+                new RequestHandlerModule(this.Configuration["KOCowinBaseAddress"]));
         }
     }
 }
