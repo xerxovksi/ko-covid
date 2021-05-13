@@ -2,7 +2,7 @@
 {
     using Newtonsoft.Json;
 
-    public class GenerateOtpResponse : ErrorResponse
+    public class GenerateOtpResponse
     {
         [JsonProperty("txnId")]
         public string TransactionId { get; set; }

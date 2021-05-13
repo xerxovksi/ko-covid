@@ -12,16 +12,16 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class GenerateOtpCommandHandler
-        : IRequestHandler<GenerateOtpCommand, bool>
+    public class ConfirmOtpCommandHandler
+        : IRequestHandler<ConfirmOtpCommand, bool>
     {
-        private const string ApiAddress = "api/v2/auth/public/generateOTP";
+        private const string ApiAddress = "api/v2/auth/public/confirmOTP";
 
         private readonly ICache<Credential> cache = null;
         private readonly HttpClient otpClient = null;
         private readonly string baseAddress = null;
 
-        public GenerateOtpCommandHandler(
+        public ConfirmOtpCommandHandler(
             ICache<Credential> cache,
             HttpClient otpClient,
             string baseAddress)
@@ -32,10 +32,26 @@
         }
 
         public async Task<bool> Handle(
-            GenerateOtpCommand request,
+            ConfirmOtpCommand request,
             CancellationToken cancellationToken)
         {
-            var payload = new GenerateOtpRequest { Mobile = request.Mobile };
+            var credential = await this.cache.GetAsync(
+                request.Mobile,
+                result => result.FromJson<Credential>());
+
+            if (credential == default)
+            {
+                throw new AuthorizationException(
+                    request.Mobile,
+                    "OTP is either invalid or has expired. Please re-generate.");
+            }
+
+            var payload = new ConfirmOtpRequest
+            {
+                Otp = request.Otp.ToSHA256(),
+                TransactionId = credential.TransactionId
+            };
+
             var response = await otpClient.SendAsync(
                 new HttpRequestMessage
                 {
@@ -56,14 +72,16 @@
                     $"Status Code: {(int)response.StatusCode}. Content: {responseContent}.");
             }
 
-            var result = responseContent.FromJson<GenerateOtpResponse>();
+            var result = responseContent.FromJson<ConfirmOtpResponse>();
             await this.cache.SetAsync(
                 request.Mobile,
                 TimeSpan.FromMinutes(50),
                 () => new Credential
                 {
                     Mobile = request.Mobile,
-                    TransactionId = result.TransactionId
+                    TransactionId = credential.TransactionId,
+                    Otp = payload.Otp,
+                    Token = result.Token
                 }.ToJson());
 
             return true;

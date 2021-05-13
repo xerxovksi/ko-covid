@@ -4,6 +4,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Security.Cryptography;
+    using System.Text;
 
     public static class DomainExtensions
     {
@@ -37,6 +39,30 @@
         }
 
         public static string WithId(this string value, object id) => $"[{id}] {value}";
+
+        public static string ToJson<T>(this T value) =>
+            value == null
+            ? default
+            : JsonConvert.SerializeObject(value);
+
+        public static T FromJson<T>(this string value) =>
+            string.IsNullOrEmpty(value)
+            ? default
+            : JsonConvert.DeserializeObject<T>(value);
+
+        public static string ToSHA256(this string value)
+        {
+            using var sha256Hash = SHA256.Create();
+            var bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(value));
+
+            var builder = new StringBuilder();
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                builder.Append(bytes[i].ToString("x2"));
+            }
+
+            return builder.ToString();
+        }
 
         public static List<string> ToValuesList(
             this string value,

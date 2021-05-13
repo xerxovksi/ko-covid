@@ -2,6 +2,9 @@ namespace KO.Covid.Api
 {
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
+    using Azure.Extensions.AspNetCore.Configuration.Secrets;
+    using Azure.Identity;
+    using Azure.Security.KeyVault.Secrets;
     using KO.Covid.Api.Filters;
     using KO.Covid.Api.IoC;
     using KO.Covid.Application;
@@ -16,7 +19,7 @@ namespace KO.Covid.Api
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    using Microsoft.IdentityModel.Tokens;
+    using System;
     using System.Reflection;
     using System.Text.Json.Serialization;
 
@@ -28,8 +31,19 @@ namespace KO.Covid.Api
 
         public Startup()
         {
+            var localConfiguration = new ConfigurationBuilder()
+                .AddEnvironmentVariables()
+                .Build();
+
+            var keyVaultClient = new SecretClient(
+                new UriBuilder(localConfiguration["KEY_VAULT_URI"]).Uri,
+                new EnvironmentCredential());
+
             this.Configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
+                .AddAzureKeyVault(
+                    keyVaultClient,
+                    new KeyVaultSecretManager())
                 .Build();
         }
 
@@ -57,19 +71,7 @@ namespace KO.Covid.Api
 
             services
                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-               .AddJwtBearer(options =>
-               {
-                   //options.Authority = this.Configuration["KOCIdentityAuthority"];
-                   //options.Audience = this.Configuration["KOCIdentityAudience"];
-                   //options.TokenValidationParameters = new TokenValidationParameters
-                   //{
-                   //    ValidIssuer = this.Configuration["KOCIdentityIssuer"],
-                   //    ValidAudience = this.Configuration["KOCIdentityAudience"],
-                   //    ValidateIssuer = true,
-                   //    ValidateAudience = true,
-                   //    ValidateLifetime = true
-                   //};
-               });
+               .AddJwtBearer();
 
             services.AddApplicationInsights(this.Configuration["KOCInstrumentationKey"]);
             services.AddRedisCache(this.Configuration["KOCCacheConnectionString"]);
@@ -86,7 +88,7 @@ namespace KO.Covid.Api
 
             app.UseCors(policy =>
             {
-                policy.WithOrigins(this.Configuration["AllowedHosts"].Split(";"));
+                policy.WithOrigins(this.Configuration["ALLOWED_HOSTS"].Split(";"));
                 policy.AllowAnyHeader();
                 policy.AllowAnyMethod();
             });
@@ -103,7 +105,7 @@ namespace KO.Covid.Api
         public void ConfigureContainer(ContainerBuilder builder)
         {
             builder.RegisterModule(
-                new RequestHandlerModule(this.Configuration["KOCowinBaseAddress"]));
+                new RequestHandlerModule(this.Configuration["COWIN_BASE_ADDRESS"]));
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿namespace KO.Covid.Application.Otp
 {
-    using KO.Covid.Application.Models;
     using MediatR;
 
-    public class GenerateOtpCommand : IRequest<bool>
+    public class ConfirmOtpCommand : IRequest<bool>
     {
         public string Mobile { get; set; }
+
+        public string Otp { get; set; }
     }
 }
