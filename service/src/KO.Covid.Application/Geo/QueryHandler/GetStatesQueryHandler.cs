@@ -48,6 +48,19 @@
                 return states;
             }
 
+            var credential = await this.GetCredentialAsync(request);
+            states = await this.GetStatesAsync(credential);
+            
+            await this.statesCache.SetAsync(
+                StatesCacheKey,
+                TimeSpan.FromDays(1),
+                () => states.ToJson());
+
+            return states;
+        }
+
+        private async Task<Credential> GetCredentialAsync(GetStatesQuery request)
+        {
             var credential = await this.credentialCache.GetAsync(
                 request.Mobile,
                 result => result.FromJson<Credential>());
@@ -59,6 +72,11 @@
                     "OTP is either invalid or has expired. Please re-generate.");
             }
 
+            return credential;
+        }
+
+        private async Task<StatesResponse> GetStatesAsync(Credential credential)
+        {
             var requestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
@@ -74,10 +92,7 @@
                     $"Failed to fetch States. Status Code: {(int)response.StatusCode}. Content: {responseContent}.");
             }
 
-            var result = responseContent.FromJson<StatesResponse>();
-            await this.statesCache.SetAsync(StatesCacheKey, TimeSpan.FromDays(1), () => responseContent);
-
-            return result;
+            return responseContent.FromJson<StatesResponse>();
         }
     }
 }

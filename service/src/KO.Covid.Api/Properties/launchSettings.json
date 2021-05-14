@@ -6,12 +6,13 @@
       "launchBrowser": true,
       "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "environmentVariables": {
-        "AllowedHosts": "*",
+        "ALLOWED_HOSTS": "*",
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "KOCInstrumentationKey": "",
-        "KOCIdentityAuthority": "",
-        "KOCIdentityAudience": "",
-        "KOCIdentityIssuer": ""
+        "KEY_VAULT_URI": "",
+        "AZURE_CLIENT_ID": "",
+        "AZURE_TENANT_ID": "",
+        "AZURE_CLIENT_SECRET": "",
+        "COWIN_BASE_ADDRESS": "https://cdn-api.co-vin.in"
       }
     }
   }

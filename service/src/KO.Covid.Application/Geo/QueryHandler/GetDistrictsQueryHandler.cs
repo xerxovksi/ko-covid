@@ -4,6 +4,7 @@
     using KO.Covid.Application.Exceptions;
     using KO.Covid.Application.Models;
     using KO.Covid.Domain;
+    using KO.Covid.Domain.Entities;
     using MediatR;
     using System;
     using System.Linq;
@@ -57,6 +58,37 @@
                 return districts;
             }
 
+            var state = await this.GetStateAsync(request);
+            var credential = await this.GetCredentialAsync(request);
+
+            districts = await this.GetDistrictsAsync(state, credential);
+            
+            await this.districtsCache.SetAsync(
+                request.StateName,
+                TimeSpan.FromDays(1),
+                () => districts.ToJson());
+
+            return districts;
+        }
+
+        private async Task<Credential> GetCredentialAsync(GetDistrictsQuery request)
+        {
+            var credential = await this.credentialCache.GetAsync(
+                request.Mobile,
+                result => result.FromJson<Credential>());
+
+            if (credential == default || string.IsNullOrEmpty(credential.Token))
+            {
+                throw new AuthorizationException(
+                    request.Mobile,
+                    "OTP is either invalid or has expired. Please re-generate.");
+            }
+
+            return credential;
+        }
+
+        private async Task<State> GetStateAsync(GetDistrictsQuery request)
+        {
             var states = await this.statesCache.GetAsync(
                 StatesCacheKey,
                 result => result.FromJson<StatesResponse>());
@@ -73,20 +105,14 @@
 
             if (state == default)
             {
-                throw new ArgumentException($"Invalid State: {request.StateName}.");
+                throw new ArgumentException($"Invalid {nameof(request.StateName)}: {request.StateName}.");
             }
 
-            var credential = await this.credentialCache.GetAsync(
-                request.Mobile,
-                result => result.FromJson<Credential>());
+            return state;
+        }
 
-            if (credential == default || string.IsNullOrEmpty(credential.Token))
-            {
-                throw new AuthorizationException(
-                    request.Mobile,
-                    "OTP is either invalid or has expired. Please re-generate.");
-            }
-
+        private async Task<DistrictsResponse> GetDistrictsAsync(State state, Credential credential)
+        {
             var requestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
@@ -102,13 +128,7 @@
                     $"Failed to fetch Districts. Status Code: {(int)response.StatusCode}. Content: {responseContent}.");
             }
 
-            var result = responseContent.FromJson<DistrictsResponse>();
-            await this.districtsCache.SetAsync(
-                request.StateName,
-                TimeSpan.FromDays(1),
-                () => responseContent);
-
-            return result;
+            return responseContent.FromJson<DistrictsResponse>();
         }
     }
 }

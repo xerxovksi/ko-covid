@@ -25,7 +25,7 @@
 
         [HttpGet]
         [Route("districts/{mobile}")]
-        public async Task<IActionResult> GetStatesAsync(
+        public async Task<IActionResult> GetDistrictsAsync(
             string mobile,
             [FromQuery] string stateName) =>
             await this.mediator.SendAsync(

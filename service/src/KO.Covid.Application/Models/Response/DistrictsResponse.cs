@@ -6,7 +6,6 @@
 
     public class DistrictsResponse
     {
-        [JsonProperty("districts")]
         public List<District> Districts { get; set; }
 
         [JsonProperty("ttl")]

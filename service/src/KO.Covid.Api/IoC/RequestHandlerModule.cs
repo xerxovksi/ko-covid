@@ -3,12 +3,10 @@
     using Autofac;
     using Autofac.Core;
     using KO.Covid.Application;
+    using KO.Covid.Application.Appointment;
     using KO.Covid.Application.Contracts;
     using KO.Covid.Application.Geo;
-    using KO.Covid.Application.Models;
     using KO.Covid.Application.Otp;
-    using MediatR;
-    using System;
     using System.Net.Http;
 
     public class RequestHandlerModule : Module
@@ -32,8 +30,13 @@
                 .Named<HttpClient>("geoClient")
                 .SingleInstance();
 
+            builder.Register(_ => new HttpClient())
+                .Named<HttpClient>("appointmentClient")
+                .SingleInstance();
+
             this.RegisterOtpHandlers(builder);
             this.RegisterGeoHandlers(builder);
+            this.RegisterAppointmentHandlers(builder);
 
             base.Load(builder);
         }
@@ -76,6 +79,27 @@
                     new ResolvedParameter(
                         (parameter, _) => parameter.Name == "geoClient",
                         (_, context) => context.ResolveNamed<HttpClient>("geoClient")))
+                .WithParameter("baseAddress", this.cowinBaseAddress)
+                .InstancePerLifetimeScope();
+        }
+
+        private void RegisterAppointmentHandlers(ContainerBuilder builder)
+        {
+            builder.RegisterType<GetAppointmentsByDistrictQueryHandler>()
+                .AsImplementedInterfaces()
+                .WithParameter(
+                    new ResolvedParameter(
+                        (parameter, _) => parameter.Name == "appointmentClient",
+                        (_, context) => context.ResolveNamed<HttpClient>("appointmentClient")))
+                .WithParameter("baseAddress", this.cowinBaseAddress)
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<GetAppointmentsByPincodeQueryHandler>()
+                .AsImplementedInterfaces()
+                .WithParameter(
+                    new ResolvedParameter(
+                        (parameter, _) => parameter.Name == "appointmentClient",
+                        (_, context) => context.ResolveNamed<HttpClient>("appointmentClient")))
                 .WithParameter("baseAddress", this.cowinBaseAddress)
                 .InstancePerLifetimeScope();
         }

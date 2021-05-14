@@ -35,6 +35,17 @@
             GenerateOtpCommand request,
             CancellationToken cancellationToken)
         {
+            var credential = await this.GetCredentialAsync(request);
+            await this.cache.SetAsync(
+                request.Mobile,
+                TimeSpan.FromMinutes(50),
+                () => credential.ToJson());
+
+            return true;
+        }
+
+        private async Task<Credential> GetCredentialAsync(GenerateOtpCommand request)
+        {
             var payload = new GenerateOtpRequest { Mobile = request.Mobile };
             var response = await otpClient.SendAsync(
                 new HttpRequestMessage
@@ -56,17 +67,13 @@
                     $"Status Code: {(int)response.StatusCode}. Content: {responseContent}.");
             }
 
-            var result = responseContent.FromJson<GenerateOtpResponse>();
-            await this.cache.SetAsync(
-                request.Mobile,
-                TimeSpan.FromMinutes(50),
-                () => new Credential
-                {
-                    Mobile = request.Mobile,
-                    TransactionId = result.TransactionId
-                }.ToJson());
-
-            return true;
+            var otpResponse = responseContent.FromJson<GenerateOtpResponse>();
+            
+            return new Credential
+            {
+                Mobile = request.Mobile,
+                TransactionId = otpResponse.TransactionId
+            };
         }
     }
 }

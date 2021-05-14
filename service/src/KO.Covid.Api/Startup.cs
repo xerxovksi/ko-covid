@@ -19,7 +19,11 @@ namespace KO.Covid.Api
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
+    using Newtonsoft.Json.Serialization;
     using System;
+    using System.Collections.Generic;
     using System.Reflection;
     using System.Text.Json.Serialization;
 
@@ -100,6 +104,17 @@ namespace KO.Covid.Api
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => endpoints.MapControllers());
+
+            var serializerSettings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                NullValueHandling = NullValueHandling.Ignore
+            };
+            serializerSettings.Converters.Add(
+                new StringEnumConverter(
+                    new CamelCaseNamingStrategy()));
+
+            JsonConvert.DefaultSettings = () => serializerSettings;
         }
 
         public void ConfigureContainer(ContainerBuilder builder)

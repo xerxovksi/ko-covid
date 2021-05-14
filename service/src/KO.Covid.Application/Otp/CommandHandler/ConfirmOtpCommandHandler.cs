@@ -46,10 +46,23 @@
                     "OTP is either invalid or has expired. Please re-generate.");
             }
 
+            credential = await this.GetCredentialAsync(request, credential.TransactionId);
+            await this.cache.SetAsync(
+                request.Mobile,
+                TimeSpan.FromMinutes(50),
+                () => credential.ToJson());
+
+            return true;
+        }
+
+        private async Task<Credential> GetCredentialAsync(
+            ConfirmOtpCommand request,
+            string transactionId)
+        {
             var payload = new ConfirmOtpRequest
             {
                 Otp = request.Otp.ToSHA256(),
-                TransactionId = credential.TransactionId
+                TransactionId = transactionId
             };
 
             var response = await otpClient.SendAsync(
@@ -72,19 +85,15 @@
                     $"Status Code: {(int)response.StatusCode}. Content: {responseContent}.");
             }
 
-            var result = responseContent.FromJson<ConfirmOtpResponse>();
-            await this.cache.SetAsync(
-                request.Mobile,
-                TimeSpan.FromMinutes(50),
-                () => new Credential
-                {
-                    Mobile = request.Mobile,
-                    TransactionId = credential.TransactionId,
-                    Otp = payload.Otp,
-                    Token = result.Token
-                }.ToJson());
-
-            return true;
+            var otpResponse = responseContent.FromJson<ConfirmOtpResponse>();
+            
+            return new Credential
+            {
+                Mobile = request.Mobile,
+                TransactionId = transactionId,
+                Otp = payload.Otp,
+                Token = otpResponse.Token
+            };
         }
     }
 }

@@ -6,7 +6,6 @@
 
     public class StatesResponse
     {
-        [JsonProperty("states")]
         public List<State> States { get; set; }
 
         [JsonProperty("ttl")]
