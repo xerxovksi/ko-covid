@@ -17,16 +17,16 @@
     {
         private const string ApiAddress = "api/v2/auth/public/generateOTP";
 
-        private readonly ICache<Credential> cache = null;
+        private readonly ICache<Credential> credentialCache = null;
         private readonly HttpClient otpClient = null;
         private readonly string baseAddress = null;
 
         public GenerateOtpCommandHandler(
-            ICache<Credential> cache,
+            ICache<Credential> credentialCache,
             HttpClient otpClient,
             string baseAddress)
         {
-            this.cache = cache;
+            this.credentialCache = credentialCache;
             this.otpClient = otpClient;
             this.baseAddress = baseAddress;
         }
@@ -36,9 +36,9 @@
             CancellationToken cancellationToken)
         {
             var credential = await this.GetCredentialAsync(request);
-            await this.cache.SetAsync(
+            await this.credentialCache.SetAsync(
                 request.Mobile,
-                TimeSpan.FromMinutes(50),
+                TimeSpan.FromHours(12),
                 () => credential.ToJson());
 
             return true;

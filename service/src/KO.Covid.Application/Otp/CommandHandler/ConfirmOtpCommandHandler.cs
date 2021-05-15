@@ -7,6 +7,7 @@
     using MediatR;
     using Newtonsoft.Json;
     using System;
+    using System.Collections.Generic;
     using System.Net.Http;
     using System.Text;
     using System.Threading;
@@ -16,17 +17,21 @@
         : IRequestHandler<ConfirmOtpCommand, bool>
     {
         private const string ApiAddress = "api/v2/auth/public/confirmOTP";
+        private const string ActiveCacheKey = "ActiveMobile";
 
-        private readonly ICache<Credential> cache = null;
+        private readonly ICache<Credential> credentialCache = null;
+        private readonly ICache<HashSet<string>> activeCache = null;
         private readonly HttpClient otpClient = null;
         private readonly string baseAddress = null;
 
         public ConfirmOtpCommandHandler(
-            ICache<Credential> cache,
+            ICache<Credential> credentialCache,
+            ICache<HashSet<string>> activeCache,
             HttpClient otpClient,
             string baseAddress)
         {
-            this.cache = cache;
+            this.credentialCache = credentialCache;
+            this.activeCache = activeCache;
             this.otpClient = otpClient;
             this.baseAddress = baseAddress;
         }
@@ -35,7 +40,7 @@
             ConfirmOtpCommand request,
             CancellationToken cancellationToken)
         {
-            var credential = await this.cache.GetAsync(
+            var credential = await this.credentialCache.GetAsync(
                 request.Mobile,
                 result => result.FromJson<Credential>());
 
@@ -47,10 +52,12 @@
             }
 
             credential = await this.GetCredentialAsync(request, credential.TransactionId);
-            await this.cache.SetAsync(
+            await this.credentialCache.SetAsync(
                 request.Mobile,
-                TimeSpan.FromMinutes(50),
+                TimeSpan.FromHours(12),
                 () => credential.ToJson());
+
+            await this.SetActiveCacheAsync(request.Mobile);
 
             return true;
         }
@@ -86,7 +93,7 @@
             }
 
             var otpResponse = responseContent.FromJson<ConfirmOtpResponse>();
-            
+
             return new Credential
             {
                 Mobile = request.Mobile,
@@ -94,6 +101,23 @@
                 Otp = payload.Otp,
                 Token = otpResponse.Token
             };
+        }
+
+        private async Task SetActiveCacheAsync(string mobile)
+        {
+            var activeMobiles = await this.activeCache.GetAsync(
+                ActiveCacheKey,
+                result => result.FromJson<HashSet<string>>());
+
+            if (activeMobiles.Contains(mobile))
+            {
+                return;
+            }
+
+            await this.activeCache.SetAsync(
+                ActiveCacheKey,
+                TimeSpan.FromHours(12),
+                () => activeMobiles.ToJson());
         }
     }
 }

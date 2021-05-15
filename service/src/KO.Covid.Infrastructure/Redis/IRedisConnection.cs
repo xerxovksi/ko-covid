@@ -1,4 +1,4 @@
-﻿namespace KO.Covid.Infrastructure.Cache
+﻿namespace KO.Covid.Infrastructure.Redis
 {
     using StackExchange.Redis;
     using System.Threading.Tasks;

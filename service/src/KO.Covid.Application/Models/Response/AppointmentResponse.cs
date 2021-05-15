@@ -6,5 +6,8 @@
     public class AppointmentResponse
     {
         public List<Appointment> Sessions { get; set; }
+
+        public AppointmentResponse() =>
+            this.Sessions = new List<Appointment>();
     }
 }

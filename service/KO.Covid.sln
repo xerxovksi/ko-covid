@@ -9,13 +9,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{99A80956-60E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{0F9FB794-2B64-4356-8820-2770E256CD1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KO.Covid.Domain", "src\KO.Covid.Domain\KO.Covid.Domain.csproj", "{181605F3-DF4B-405C-8856-BAA20489F3DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KO.Covid.Domain", "src\KO.Covid.Domain\KO.Covid.Domain.csproj", "{181605F3-DF4B-405C-8856-BAA20489F3DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KO.Covid.Application", "src\KO.Covid.Application\KO.Covid.Application.csproj", "{EA03EF24-5DE2-43C9-98E7-1ED966B7C46F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KO.Covid.Application", "src\KO.Covid.Application\KO.Covid.Application.csproj", "{EA03EF24-5DE2-43C9-98E7-1ED966B7C46F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KO.Covid.Infrastructure", "src\KO.Covid.Infrastructure\KO.Covid.Infrastructure.csproj", "{C1DFCF00-812C-4200-A825-237B7C6E1114}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KO.Covid.Infrastructure", "src\KO.Covid.Infrastructure\KO.Covid.Infrastructure.csproj", "{C1DFCF00-812C-4200-A825-237B7C6E1114}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KO.Covid.Domain.Test", "test\KO.Covid.Domain.Test\KO.Covid.Domain.Test.csproj", "{6A8D53D4-81C9-4E97-AFF4-EADE97643D3F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KO.Covid.Domain.Test", "test\KO.Covid.Domain.Test\KO.Covid.Domain.Test.csproj", "{6A8D53D4-81C9-4E97-AFF4-EADE97643D3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KO.Covid.Subscriber", "src\KO.Covid.Subscriber\KO.Covid.Subscriber.csproj", "{0901206A-D5E9-45A1-86A6-B41E66838B8A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +45,10 @@ Global
 		{6A8D53D4-81C9-4E97-AFF4-EADE97643D3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A8D53D4-81C9-4E97-AFF4-EADE97643D3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A8D53D4-81C9-4E97-AFF4-EADE97643D3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0901206A-D5E9-45A1-86A6-B41E66838B8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0901206A-D5E9-45A1-86A6-B41E66838B8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0901206A-D5E9-45A1-86A6-B41E66838B8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0901206A-D5E9-45A1-86A6-B41E66838B8A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 		{EA03EF24-5DE2-43C9-98E7-1ED966B7C46F} = {99A80956-60E2-49BC-8815-384E8B6F7754}
 		{C1DFCF00-812C-4200-A825-237B7C6E1114} = {99A80956-60E2-49BC-8815-384E8B6F7754}
 		{6A8D53D4-81C9-4E97-AFF4-EADE97643D3F} = {0F9FB794-2B64-4356-8820-2770E256CD1A}
+		{0901206A-D5E9-45A1-86A6-B41E66838B8A} = {99A80956-60E2-49BC-8815-384E8B6F7754}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DE4BE1CC-640D-4922-A451-82F8887734F7}

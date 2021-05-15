@@ -10,5 +10,8 @@
 
         [JsonProperty("ttl")]
         public int? TimeToLive { get; set; }
+
+        public DistrictsResponse() =>
+            this.Districts = new List<District>();
     }
 }

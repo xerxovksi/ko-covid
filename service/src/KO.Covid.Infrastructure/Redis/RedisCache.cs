@@ -1,4 +1,4 @@
-﻿namespace KO.Covid.Infrastructure.Cache
+﻿namespace KO.Covid.Infrastructure.Redis
 {
     using KO.Covid.Application.Contracts;
     using StackExchange.Redis;

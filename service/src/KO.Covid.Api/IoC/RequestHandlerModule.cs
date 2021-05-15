@@ -20,7 +20,7 @@
         {
             builder.RegisterType<RequestMediator>()
                 .As<IRequestMediator>()
-                .SingleInstance();
+                .InstancePerLifetimeScope();
 
             builder.Register(_ => new HttpClient())
                 .Named<HttpClient>("otpClient")

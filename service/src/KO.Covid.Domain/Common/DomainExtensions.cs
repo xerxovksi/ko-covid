@@ -64,6 +64,40 @@
             return builder.ToString();
         }
 
+        public static List<T> DistinctBy<T>(
+            this List<T> collection,
+            Func<T, string> getKey,
+            Func<T, T, bool> comparator)
+        {
+            if (collection.IsNullOrEmpty() || collection.Count.Equals(1))
+            {
+                return collection;
+            }
+
+            var distinctCollection = new Dictionary<string, T>
+            {
+                { getKey(collection.First()), collection.First() }
+            };
+
+            for (var i = 1; i < collection.Count; i++)
+            {
+                var key = getKey(collection[i]);
+                if (distinctCollection.ContainsKey(key))
+                {
+                    if (comparator(collection[i], distinctCollection[key]))
+                    {
+                        distinctCollection[key] = collection[i];
+                    }
+
+                    continue;
+                }
+
+                distinctCollection[key] = collection[i];
+            }
+
+            return distinctCollection.Values.ToList();
+        }
+
         public static List<string> ToValuesList(
             this string value,
             string recordDelimiter,

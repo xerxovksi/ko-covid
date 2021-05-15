@@ -25,7 +25,8 @@ namespace KO.Covid.Api
     using System;
     using System.Collections.Generic;
     using System.Reflection;
-    using System.Text.Json.Serialization;
+    using System.Text.Json;
+    using JsonStringEnumConverter = System.Text.Json.Serialization.JsonStringEnumConverter;
 
     public class Startup
     {
@@ -49,21 +50,38 @@ namespace KO.Covid.Api
                     keyVaultClient,
                     new KeyVaultSecretManager())
                 .Build();
+
+            var serializerSettings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Converters = new List<JsonConverter>
+                {
+                    new StringEnumConverter(new CamelCaseNamingStrategy())
+                },
+                NullValueHandling = NullValueHandling.Ignore
+            };
+
+            JsonConvert.DefaultSettings = () => serializerSettings;
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton(_ => this.Configuration);
-            
+
             services.AddScoped<Correlator>();
             services
                 .AddControllers(configuration =>
                     configuration.Filters.Add(typeof(CorrelationActionFilter)))
                 .AddJsonOptions(option =>
                 {
+                    option.JsonSerializerOptions.PropertyNamingPolicy =
+                        JsonNamingPolicy.CamelCase;
+
                     option.JsonSerializerOptions.Converters.Add(
                         new JsonStringEnumConverter());
+
+                    option.JsonSerializerOptions.IgnoreNullValues = true;
                 });
 
             services.AddOptions();
@@ -79,6 +97,13 @@ namespace KO.Covid.Api
 
             services.AddApplicationInsights(this.Configuration["KOCInstrumentationKey"]);
             services.AddRedisCache(this.Configuration["KOCCacheConnectionString"]);
+            services.AddCosmos(
+                this.Configuration["KOCCosmosEndpoint"],
+                this.Configuration["KOCCosmosAuthKey"],
+                this.Configuration["COSMOS_DATABASE_ID"],
+                this.Configuration["COSMOS_SUBSCRIBER_CONTAINER_ID"]);
+            
+            services.AddSubscriberRepository(this.Configuration["COSMOS_SUBSCRIBER_CONTAINER_ID"]);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -104,17 +129,6 @@ namespace KO.Covid.Api
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => endpoints.MapControllers());
-
-            var serializerSettings = new JsonSerializerSettings
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                NullValueHandling = NullValueHandling.Ignore
-            };
-            serializerSettings.Converters.Add(
-                new StringEnumConverter(
-                    new CamelCaseNamingStrategy()));
-
-            JsonConvert.DefaultSettings = () => serializerSettings;
         }
 
         public void ConfigureContainer(ContainerBuilder builder)
