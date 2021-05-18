@@ -3,6 +3,7 @@
     using KO.Covid.Application.Contracts;
     using KO.Covid.Infrastructure.ApplicationInsights;
     using KO.Covid.Infrastructure.Cosmos;
+    using KO.Covid.Infrastructure.Mail;
     using KO.Covid.Infrastructure.Redis;
     using KO.Covid.Infrastructure.Subscriber;
     using Microsoft.Azure.Cosmos;
@@ -10,6 +11,8 @@
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.ApplicationInsights;
     using System.Collections.Generic;
+    using System.Net;
+    using System.Net.Mail;
 
     public static class InfrastructureRegistrations
     {
@@ -31,7 +34,7 @@
             return services;
         }
 
-        public static IServiceCollection AddRedisCache(
+        public static IServiceCollection AddRedis(
             this IServiceCollection services,
             string connectionString)
         {
@@ -67,6 +70,25 @@
                     databaseId,
                     new List<string> { containerId },
                     provider.GetRequiredService<CosmosClient>()));
+
+            return services;
+        }
+
+        public static IServiceCollection AddMailNotifier(
+            this IServiceCollection services,
+            string username,
+            string password)
+        {
+            services.AddSingleton(
+                new SmtpClient("smtp.gmail.com", 587)
+                {
+                    UseDefaultCredentials = false,
+                    Credentials = new NetworkCredential(username, password),
+                    EnableSsl = true
+                });
+
+            services.AddScoped<INotifier>(provider =>
+                new GmailNotifier(provider.GetRequiredService<SmtpClient>(), username));
 
             return services;
         }

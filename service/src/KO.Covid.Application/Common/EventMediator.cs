@@ -17,12 +17,25 @@
             this.logger = logger;
         }
 
-        /// <inheritdoc/>
-        public async Task<bool> SendAsync<TRequest>(IRequest<TRequest> request)
+        public async Task<bool> SendAsync<TResponse>(
+            IRequest<TResponse> request,
+            Func<TResponse, string> successLogMessage = null,
+            Func<TResponse, object[]> successLogParameters = null)
         {
             try
             {
                 var result = await this.mediator.Send(request);
+
+                if (successLogMessage != default
+                    && !string.IsNullOrWhiteSpace(successLogMessage(result)))
+                {
+                    this.logger.LogInformation(
+                        successLogMessage(result),
+                        successLogParameters == default
+                            ? null
+                            : successLogParameters(result));
+                }
+
                 return true;
             }
             catch (Exception exception)

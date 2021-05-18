@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KO.Covid.Infrastructure", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KO.Covid.Domain.Test", "test\KO.Covid.Domain.Test\KO.Covid.Domain.Test.csproj", "{6A8D53D4-81C9-4E97-AFF4-EADE97643D3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KO.Covid.Subscriber", "src\KO.Covid.Subscriber\KO.Covid.Subscriber.csproj", "{0901206A-D5E9-45A1-86A6-B41E66838B8A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KO.Covid.Subscriber", "src\KO.Covid.Subscriber\KO.Covid.Subscriber.csproj", "{0901206A-D5E9-45A1-86A6-B41E66838B8A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

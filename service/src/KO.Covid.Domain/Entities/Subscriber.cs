@@ -9,23 +9,27 @@
 
         public string Email { get; set; }
 
+        public int? Age { get; set; }
+
+        public List<Geo> Districts { get; set; }
+
         public List<string> Pincodes { get; set; }
 
-        public List<int> Districts { get; set; }
-
-        public List<int> LastNotifiedCenters { get; set; }
+        public HashSet<int> LastNotifiedCenters { get; set; }
 
         public DateTime? LastNotifiedOn { get; set; }
 
-        public DateTime? LastAuthorizedOn { get; set; }
-
         public Subscriber()
         {
-            this.Id = this.Mobile;
-
+            this.Districts = new List<Geo>();
             this.Pincodes = new List<string>();
-            this.Districts = new List<int>();
-            this.LastNotifiedCenters = new List<int>();
+            this.LastNotifiedCenters = new HashSet<int>();
+        }
+
+        public Subscriber AddId()
+        {
+            this.Id = this.Mobile;
+            return this;
         }
     }
 }

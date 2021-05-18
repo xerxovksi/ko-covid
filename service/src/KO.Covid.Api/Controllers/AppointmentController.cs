@@ -31,6 +31,22 @@
                 });
 
         [HttpGet]
+        [Route("appointment/calendar/bydistrict/{mobile}")]
+        public async Task<IActionResult> GetAppointmentCalendarAsync(
+            string mobile,
+            [FromQuery] string stateName,
+            [FromQuery] string districtName,
+            [FromQuery] string date) =>
+            await this.mediator.SendAsync(
+                new GetAppointmentsCalendarByDistrictQuery
+                {
+                    StateName = stateName,
+                    DistrictName = districtName,
+                    Date = date,
+                    Mobile = mobile
+                });
+
+        [HttpGet]
         [Route("appointment/bypincode/{mobile}")]
         public async Task<IActionResult> GetAppointmentAsync(
             string mobile,
@@ -38,6 +54,20 @@
             [FromQuery] string date) =>
             await this.mediator.SendAsync(
                 new GetAppointmentsByPincodeQuery
+                {
+                    Pincode = pincode,
+                    Date = date,
+                    Mobile = mobile
+                });
+
+        [HttpGet]
+        [Route("appointment/calendar/bypincode/{mobile}")]
+        public async Task<IActionResult> GetAppointmentCalendarAsync(
+            string mobile,
+            [FromQuery] string pincode,
+            [FromQuery] string date) =>
+            await this.mediator.SendAsync(
+                new GetAppointmentsCalendarByPincodeQuery
                 {
                     Pincode = pincode,
                     Date = date,

@@ -8,11 +8,10 @@
       "environmentVariables": {
         "ALLOWED_HOSTS": "*",
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "KEY_VAULT_URI": "",
-        "AZURE_CLIENT_ID": "",
-        "AZURE_TENANT_ID": "",
-        "AZURE_CLIENT_SECRET": "",
-        "COWIN_BASE_ADDRESS": "https://cdn-api.co-vin.in"
+        "KEY_VAULT_URI": "https://sparta.vault.azure.net/",
+        "COWIN_BASE_ADDRESS": "https://cdn-api.co-vin.in",
+        "COSMOS_DATABASE_ID": "scadadb",
+        "COSMOS_SUBSCRIBER_CONTAINER_ID": "kocovidsubscriber"
       }
     }
   }

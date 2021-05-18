@@ -6,8 +6,10 @@
     using KO.Covid.Application.Appointment;
     using KO.Covid.Application.Contracts;
     using KO.Covid.Application.Geo;
-    using KO.Covid.Application.Otp;
+    using KO.Covid.Application.Authorization;
     using System.Net.Http;
+    using KO.Covid.Application.Subscriber;
+    using FluentValidation;
 
     public class RequestHandlerModule : Module
     {
@@ -34,14 +36,15 @@
                 .Named<HttpClient>("appointmentClient")
                 .SingleInstance();
 
-            this.RegisterOtpHandlers(builder);
+            this.RegisterAuthorizationHandlers(builder);
             this.RegisterGeoHandlers(builder);
             this.RegisterAppointmentHandlers(builder);
+            this.RegisterSubscriberHandlers(builder);
 
             base.Load(builder);
         }
 
-        private void RegisterOtpHandlers(ContainerBuilder builder)
+        private void RegisterAuthorizationHandlers(ContainerBuilder builder)
         {
             builder.RegisterType<GenerateOtpCommandHandler>()
                 .AsImplementedInterfaces()
@@ -59,6 +62,22 @@
                         (parameter, _) => parameter.Name == "otpClient",
                         (_, context) => context.ResolveNamed<HttpClient>("otpClient")))
                 .WithParameter("baseAddress", this.cowinBaseAddress)
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<RegisterDistrictTokenCommandHandler>()
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<RegisterDistrictTokenCommandValidator>()
+                .As<IValidator<RegisterDistrictTokenCommand>>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<RegisterPincodeTokenCommandHandler>()
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<RegisterPincodeTokenCommandValidator>()
+                .As<IValidator<RegisterPincodeTokenCommand>>()
                 .InstancePerLifetimeScope();
         }
 
@@ -94,6 +113,15 @@
                 .WithParameter("baseAddress", this.cowinBaseAddress)
                 .InstancePerLifetimeScope();
 
+            builder.RegisterType<GetAppointmentsCalendarByDistrictQueryHandler>()
+                .AsImplementedInterfaces()
+                .WithParameter(
+                    new ResolvedParameter(
+                        (parameter, _) => parameter.Name == "appointmentClient",
+                        (_, context) => context.ResolveNamed<HttpClient>("appointmentClient")))
+                .WithParameter("baseAddress", this.cowinBaseAddress)
+                .InstancePerLifetimeScope();
+
             builder.RegisterType<GetAppointmentsByPincodeQueryHandler>()
                 .AsImplementedInterfaces()
                 .WithParameter(
@@ -101,6 +129,34 @@
                         (parameter, _) => parameter.Name == "appointmentClient",
                         (_, context) => context.ResolveNamed<HttpClient>("appointmentClient")))
                 .WithParameter("baseAddress", this.cowinBaseAddress)
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<GetAppointmentsCalendarByPincodeQueryHandler>()
+                .AsImplementedInterfaces()
+                .WithParameter(
+                    new ResolvedParameter(
+                        (parameter, _) => parameter.Name == "appointmentClient",
+                        (_, context) => context.ResolveNamed<HttpClient>("appointmentClient")))
+                .WithParameter("baseAddress", this.cowinBaseAddress)
+                .InstancePerLifetimeScope();
+        }
+
+        private void RegisterSubscriberHandlers(ContainerBuilder builder)
+        {
+            builder.RegisterType<CreateSubscriberCommandHandler>()
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<CreateSubscriberCommandValidator>()
+                .As<IValidator<CreateSubscriberCommand>>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<UpdateSubscriberCommandHandler>()
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<UpdateSubscriberCommandValidator>()
+                .As<IValidator<UpdateSubscriberCommand>>()
                 .InstancePerLifetimeScope();
         }
     }

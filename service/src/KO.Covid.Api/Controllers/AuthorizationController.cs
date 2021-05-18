@@ -1,7 +1,8 @@
 ﻿namespace KO.Covid.Api.Controllers
 {
     using KO.Covid.Application.Contracts;
-    using KO.Covid.Application.Otp;
+    using KO.Covid.Application.Models;
+    using KO.Covid.Application.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using System.Threading.Tasks;
 
@@ -32,5 +33,27 @@
                     Mobile = mobile,
                     Otp = otp
                 });
+
+        [HttpPost]
+        [Route("register/district/token")]
+        public async Task<IActionResult> RegisterDistrictTokenAsync(
+            [FromBody] RegisterDistrictTokenRequest request) =>
+            await this.mediator.SendAsync(
+                request: new RegisterDistrictTokenCommand
+                {
+                    InternalDistrictToken = request.InternalDistrictToken
+                },
+                successLogMessage: _ => "Successfully registered District token.");
+
+        [HttpPost]
+        [Route("register/pincode/token")]
+        public async Task<IActionResult> RegisterPincodeTokenAsync(
+            [FromBody] RegisterPincodeTokenRequest request) =>
+            await this.mediator.SendAsync(
+                request: new RegisterPincodeTokenCommand
+                {
+                    InternalPincodeToken = request.InternalPincodeToken
+                },
+                successLogMessage: _ => "Successfully registered Pincode token.");
     }
 }

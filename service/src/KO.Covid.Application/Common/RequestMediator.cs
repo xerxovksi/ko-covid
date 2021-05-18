@@ -26,7 +26,7 @@
         public async Task<IActionResult> SendAsync<T>(
             IRequest<T> request,
             Action validate = null,
-            string successLogMessage = null,
+            Func<T, string> successLogMessage = null,
             Func<T, object[]> successLogParameters = null)
         {
             try
@@ -35,11 +35,14 @@
 
                 var result = await this.mediator.Send(request);
 
-                if (string.IsNullOrWhiteSpace(successLogMessage) == false)
+                if (successLogMessage != default
+                    && !string.IsNullOrWhiteSpace(successLogMessage(result)))
                 {
                     this.logger.LogInformation(
-                        successLogMessage,
-                        successLogParameters(result));
+                        successLogMessage(result),
+                        successLogParameters == default
+                            ? null
+                            : successLogParameters(result));
                 }
 
                 return new OkObjectResult(

@@ -9,5 +9,7 @@
         public string Otp { get; set; }
 
         public string Token { get; set; }
+
+        public string InternalToken { get; set; }
     }
 }

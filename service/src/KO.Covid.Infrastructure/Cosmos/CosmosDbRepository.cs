@@ -95,35 +95,6 @@
 
         public virtual string GenerateId(T entity) => Guid.NewGuid().ToString();
 
-        public async Task<T> GetItemByIdAsync(string id, CancellationToken cancellationToken = default)
-        {
-            T entity = default;
-            var partitionKey = this.ResolvePartitionKey(entity);
-
-            try
-            {
-                var cosmosClient = this.cosmosClientFactory.GetClient(this.ContainerId);
-                var response = await cosmosClient.ReadItemAsync<T>(id, partitionKey, cancellationToken: cancellationToken).ConfigureAwait(true);
-
-                return response.Resource;
-            }
-            catch (CosmosException exception)
-            {
-                if (exception.StatusCode == HttpStatusCode.NotFound)
-                {
-                    throw new EntityNotFoundException(
-                        $"Item not found with Id: '{id}' in Partition: {partitionKey}.",
-                        exception);
-                }
-                else if (exception.StatusCode == HttpStatusCode.TooManyRequests)
-                {
-                    throw new TooManyRequestsException("Too many requests.");
-                }
-
-                throw;
-            }
-        }
-
         public async Task<IEnumerable<T>> GetItemsAsync(
             Expression<Func<T, bool>> predicate,
             bool allowSynchronousQueryExecution = false,

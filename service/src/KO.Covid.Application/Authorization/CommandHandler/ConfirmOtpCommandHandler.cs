@@ -1,4 +1,4 @@
-﻿namespace KO.Covid.Application.Otp
+﻿namespace KO.Covid.Application.Authorization
 {
     using KO.Covid.Application.Contracts;
     using KO.Covid.Application.Exceptions;
@@ -17,7 +17,7 @@
         : IRequestHandler<ConfirmOtpCommand, bool>
     {
         private const string ApiAddress = "api/v2/auth/public/confirmOTP";
-        private const string ActiveCacheKey = "ActiveMobile";
+        private const string ActiveCacheKey = "ActiveUsers";
 
         private readonly ICache<Credential> credentialCache = null;
         private readonly ICache<HashSet<string>> activeCache = null;
@@ -54,7 +54,7 @@
             credential = await this.GetCredentialAsync(request, credential.TransactionId);
             await this.credentialCache.SetAsync(
                 request.Mobile,
-                TimeSpan.FromHours(12),
+                TimeSpan.FromDays(3),
                 () => credential.ToJson());
 
             await this.SetActiveCacheAsync(request.Mobile);
@@ -108,6 +108,16 @@
             var activeMobiles = await this.activeCache.GetAsync(
                 ActiveCacheKey,
                 result => result.FromJson<HashSet<string>>());
+
+            if (activeMobiles == default)
+            {
+                await this.activeCache.SetAsync(
+                    ActiveCacheKey,
+                    TimeSpan.FromHours(12),
+                    () => new List<string> { mobile }.ToJson());
+
+                return;
+            }
 
             if (activeMobiles.Contains(mobile))
             {

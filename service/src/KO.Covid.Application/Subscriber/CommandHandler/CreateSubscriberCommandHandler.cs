@@ -15,9 +15,7 @@
             this.repository = repository;
 
         public async Task<Subscriber> Handle(
-            CreateSubscriberCommand request, CancellationToken cancellationToken)
-        {
-            throw new System.NotImplementedException();
-        }
+            CreateSubscriberCommand request, CancellationToken cancellationToken) =>
+            await this.repository.AddItemAsync(request.Subscriber.AddId());
     }
 }

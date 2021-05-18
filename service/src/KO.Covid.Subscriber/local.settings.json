@@ -1,0 +1,14 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "ASPNETCORE_ENVIRONMENT": "Development",
+    "SUBSCRIBER_TIMER": "0 0/2 * * * *",
+    "KEY_VAULT_URI": "https://sparta.vault.azure.net/",
+    "SERVICE_BASE_ADDRESS": "https://ko-covid-service.azurewebsites.net",
+    "COWIN_BASE_ADDRESS": "https://cdn-api.co-vin.in",
+    "COSMOS_DATABASE_ID": "scadadb",
+    "COSMOS_SUBSCRIBER_CONTAINER_ID": "kocovidsubscriber"
+  }
+}

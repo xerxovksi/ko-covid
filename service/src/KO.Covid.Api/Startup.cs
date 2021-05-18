@@ -40,15 +40,20 @@ namespace KO.Covid.Api
                 .AddEnvironmentVariables()
                 .Build();
 
-            var keyVaultClient = new SecretClient(
+            var secretClient = new SecretClient(
                 new UriBuilder(localConfiguration["KEY_VAULT_URI"]).Uri,
-                new EnvironmentCredential());
+                new ChainedTokenCredential(
+                    new DefaultAzureCredential(),
+                    new EnvironmentCredential()));
 
             this.Configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
                 .AddAzureKeyVault(
-                    keyVaultClient,
-                    new KeyVaultSecretManager())
+                    secretClient,
+                    new AzureKeyVaultConfigurationOptions
+                    {
+                        ReloadInterval = TimeSpan.FromHours(24)
+                    })
                 .Build();
 
             var serializerSettings = new JsonSerializerSettings
@@ -87,7 +92,6 @@ namespace KO.Covid.Api
             services.AddOptions();
 
             var assembly = typeof(Startup).GetTypeInfo().Assembly;
-
             services.AddMediatR(assembly);
             services.AddFluentValidation(new[] { assembly });
 
@@ -96,7 +100,7 @@ namespace KO.Covid.Api
                .AddJwtBearer();
 
             services.AddApplicationInsights(this.Configuration["KOCInstrumentationKey"]);
-            services.AddRedisCache(this.Configuration["KOCCacheConnectionString"]);
+            services.AddRedis(this.Configuration["KOCCacheConnectionString"]);
             services.AddCosmos(
                 this.Configuration["KOCCosmosEndpoint"],
                 this.Configuration["KOCCosmosAuthKey"],

@@ -1,0 +1,81 @@
+[GET]
+https://localhost:5001/api/generateotp/<mobileNumber>
+
+[GET]
+https://localhost:5001/api/confirmotp/<mobileNumber>/<otpReceived>
+
+[POST]
+https://localhost:5001/api/district/register/token
+{
+  "internalDistrictToken": "<bearerToken>"
+}
+
+[POST]
+https://localhost:5001/api/pincode/register/token
+{
+  "internalPincodeToken": "<bearerToken>"
+}
+
+[GET]
+https://localhost:5001/api/states/<mobileNumber>
+
+[GET]
+https://localhost:5001/api/districts/<mobileNumber>?stateName=<stateName>
+
+[GET]
+https://localhost:5001/api/appointment/bydistrict/<mobileNumber>?stateName=<stateName>&districtName=<districtName>&date=<dd-mm-yyyy>
+
+[GET]
+https://localhost:5001/api/appointment/calendar/bydistrict/<mobileNumber>?stateName=<stateName>&districtName=<districtName>&date=<dd-mm-yyyy>
+
+[GET]
+https://localhost:5001/api/appointment/bypincode/<mobileNumber>?pincode=<pincode>&date=<dd-mm-yyyy>
+
+[GET]
+https://localhost:5001/api/appointment/calendar/bypincode/<mobileNumber>?pincode=<pincode>&date=<dd-mm-yyyy>
+
+[POST]
+https://localhost:5001/api/subscribers
+{
+  "mobile": "<mobileNumber>",
+  "email": "<emailAddress>",
+  "age": <age>,
+  "pincodes": ["<pincode1>", "<pincode2>", "<pincode3>"],
+  "districts": [
+    {
+      "stateName": "<stateName1>",
+      "districtName": "<districtName1>"
+    },
+    {
+      "stateName": "<stateName2>",
+      "districtName": "<districtName2>"
+    },
+    {
+      "stateName": "<stateName3>",
+      "districtName": "<districtName3>"
+    }
+  ]
+}
+
+[PUT]
+https://localhost:5001/api/subscribers
+{
+  "mobile": "<mobileNumber>",
+  "email": "<emailAddress>",
+  "age": <age>,
+  "pincodes": ["<pincode1>", "<pincode2>", "<pincode3>"],
+  "districts": [
+    {
+      "stateName": "<stateName1>",
+      "districtName": "<districtName1>"
+    },
+    {
+      "stateName": "<stateName2>",
+      "districtName": "<districtName2>"
+    },
+    {
+      "stateName": "<stateName3>",
+      "districtName": "<districtName3>"
+    }
+  ]
+}

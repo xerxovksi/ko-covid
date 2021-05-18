@@ -6,9 +6,11 @@ namespace KO.Covid.Subscriber
     using Azure.Extensions.AspNetCore.Configuration.Secrets;
     using Azure.Identity;
     using Azure.Security.KeyVault.Secrets;
+    using KO.Covid.Application;
     using KO.Covid.Infrastructure.IoC;
     using KO.Covid.Subscriber.IoC;
     using MediatR;
+    using MediatR.Extensions.FluentValidation.AspNetCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Newtonsoft.Json;
@@ -30,15 +32,20 @@ namespace KO.Covid.Subscriber
                 .AddEnvironmentVariables()
                 .Build();
 
-            var keyVaultClient = new SecretClient(
+            var secretClient = new SecretClient(
                 new UriBuilder(localConfiguration["KEY_VAULT_URI"]).Uri,
-                new EnvironmentCredential());
+                new ChainedTokenCredential(
+                    new DefaultAzureCredential(),
+                    new EnvironmentCredential()));
 
             this.Configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
                 .AddAzureKeyVault(
-                    keyVaultClient,
-                    new KeyVaultSecretManager())
+                    secretClient,
+                    new AzureKeyVaultConfigurationOptions
+                    {
+                        ReloadInterval = TimeSpan.FromHours(24)
+                    })
                 .Build();
 
             var serializerSettings = new JsonSerializerSettings
@@ -58,11 +65,27 @@ namespace KO.Covid.Subscriber
         {
             var assembly = typeof(Startup).GetTypeInfo().Assembly;
             builder.Services.AddMediatR(assembly);
+            builder.Services.AddFluentValidation(new[] { assembly });
 
             builder.Services.AddSingleton(this.Configuration);
-            builder.Services.AddApplicationInsights(this.Configuration["KOCInstrumentationKey"]);
+            builder.Services.AddScoped<Correlator>();
 
-            builder.Services.AddHandlers();
+            builder.Services.AddApplicationInsights(this.Configuration["KOCInstrumentationKey"]);
+            builder.Services.AddRedis(this.Configuration["KOCCacheConnectionString"]);
+            builder.Services.AddCosmos(
+                this.Configuration["KOCCosmosEndpoint"],
+                this.Configuration["KOCCosmosAuthKey"],
+                this.Configuration["COSMOS_DATABASE_ID"],
+                this.Configuration["COSMOS_SUBSCRIBER_CONTAINER_ID"]);
+
+            builder.Services.AddSubscriberRepository(
+                this.Configuration["COSMOS_SUBSCRIBER_CONTAINER_ID"]);
+
+            builder.Services.AddMailNotifier(
+                this.Configuration["KOCMailUsername"],
+                this.Configuration["KOCMailPassword"]);
+
+            builder.Services.AddHandlers(this.Configuration["COWIN_BASE_ADDRESS"]);
         }
     }
 }

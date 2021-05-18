@@ -10,7 +10,7 @@
         Task<IActionResult> SendAsync<T>(
             IRequest<T> request,
             Action validate = null,
-            string successLogMessage = null,
+            Func<T, string> successLogMessage = null,
             Func<T, object[]> successLogParameters = null);
     }
 }

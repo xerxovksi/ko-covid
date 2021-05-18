@@ -1,4 +1,4 @@
-﻿namespace KO.Covid.Application.Otp
+﻿namespace KO.Covid.Application.Authorization
 {
     using KO.Covid.Application.Contracts;
     using KO.Covid.Application.Exceptions;

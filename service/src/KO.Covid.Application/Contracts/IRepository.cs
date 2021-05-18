@@ -17,10 +17,6 @@
             TEntity entity,
             CancellationToken cancellationToken = default);
 
-        Task<TEntity> GetItemByIdAsync(
-            string id,
-            CancellationToken cancellationToken = default);
-
         Task<IEnumerable<TEntity>> GetItemsAsync(
             Expression<Func<TEntity, bool>> predicate,
             bool allowSynchronousQueryExecution = false,

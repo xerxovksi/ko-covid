@@ -1,4 +1,4 @@
-﻿namespace KO.Covid.Application.Otp
+﻿namespace KO.Covid.Application.Authorization
 {
     using MediatR;
 

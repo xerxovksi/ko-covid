@@ -23,8 +23,28 @@
             return default;
         }
 
-        public static bool IsNullOrEmpty<T>(this List<T> collection) =>
+        public static bool IsNullOrEmpty<T>(this IEnumerable<T> collection) =>
             collection == null || collection.Any() == false;
+
+        public static HashSet<T> AddRange<T>(this HashSet<T> originalSet, HashSet<T> newSet)
+        {
+            if (newSet.IsNullOrEmpty())
+            {
+                return originalSet;
+            }
+
+            foreach (var newItem in newSet)
+            {
+                if (originalSet.Contains(newItem))
+                {
+                    continue;
+                }
+
+                originalSet.Add(newItem);
+            }
+
+            return originalSet;
+        }
 
         public static bool EqualsIgnoreCase(this string value, string compareWith) =>
             value?.Equals(compareWith, StringComparison.InvariantCultureIgnoreCase) ?? false;
@@ -126,6 +146,28 @@
             }
 
             return results;
+        }
+
+        public static List<List<T>> GetBatches<T>(this List<T> collection, int batchSize)
+        {
+            if (batchSize <= 0)
+            {
+                throw new InvalidOperationException("Batch size cannot be null.");
+            }
+
+            var itemsInBatches = new List<List<T>>();
+
+            for (var i = 0; i < collection.Count; i++)
+            {
+                if (itemsInBatches.Count.Equals(i / batchSize))
+                {
+                    itemsInBatches.Add(new List<T>());
+                }
+
+                itemsInBatches[i / batchSize].Add(collection[i]);
+            }
+
+            return itemsInBatches;
         }
     }
 }
