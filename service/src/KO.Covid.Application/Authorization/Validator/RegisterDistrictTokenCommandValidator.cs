@@ -9,8 +9,7 @@
         {
             RuleFor(request => request.InternalDistrictToken)
                 .NotNull()
-                .NotEmpty()
-                .WithMessage("InternalDistrictToken should not be null or empty.");
+                .NotEmpty();
         }
     }
 }
