@@ -12,6 +12,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using static KO.Covid.Application.Constants;
+
     public class GenerateOtpCommandHandler
         : IRequestHandler<GenerateOtpCommand, bool>
     {
@@ -38,7 +40,7 @@
             var credential = await this.GetCredentialAsync(request);
             await this.credentialCache.SetAsync(
                 request.Mobile,
-                TimeSpan.FromHours(12),
+                CredentialCacheDuration,
                 () => credential.ToJson());
 
             return true;

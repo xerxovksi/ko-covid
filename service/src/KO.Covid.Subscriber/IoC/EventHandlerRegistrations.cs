@@ -3,6 +3,7 @@
     using FluentValidation;
     using KO.Covid.Application;
     using KO.Covid.Application.Appointment;
+    using KO.Covid.Application.Authorization;
     using KO.Covid.Application.Contracts;
     using KO.Covid.Application.Geo;
     using KO.Covid.Application.Models;
@@ -23,11 +24,23 @@
 
             services.AddSingleton(_ => new HttpClient());
 
+            services.AddAuthorizationHandlers();
             services.AddSubscriberHandlers();
             services.AddGeoHandlers(baseAddress);
             services.AddAppointmentHandlers(baseAddress);
 
             return services;
+        }
+
+        private static void AddAuthorizationHandlers(this IServiceCollection services)
+        {
+            services.AddScoped(
+                typeof(IRequestHandler<AddActiveUserCommand, bool>),
+                typeof(AddActiveUserCommandHandler));
+
+            services.AddScoped(
+                typeof(IRequestHandler<GetActiveUsersQuery, HashSet<string>>),
+                typeof(GetActiveUsersQueryHandler));
         }
 
         private static void AddSubscriberHandlers(this IServiceCollection services)
@@ -88,7 +101,7 @@
                     baseAddress: baseAddress));
 
             services.AddScoped(
-                typeof(IRequestHandler<NotifyAppointmentsByPincodeCommand, bool>),
+                typeof(IRequestHandler<NotifyAppointmentsByPincodeCommand, List<string>>),
                 typeof(NotifyAppointmentsByPincodeCommandHandler));
 
             services.AddScoped(

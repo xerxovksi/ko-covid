@@ -10,6 +10,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using static KO.Covid.Application.Constants;
+
     public class GetStatesQueryHandler
         : IRequestHandler<GetStatesQuery, StatesResponse>
     {
@@ -53,7 +55,7 @@
             
             await this.statesCache.SetAsync(
                 StatesCacheKey,
-                TimeSpan.FromDays(1),
+                GeoCacheDuration,
                 () => states.ToJson());
 
             return states;

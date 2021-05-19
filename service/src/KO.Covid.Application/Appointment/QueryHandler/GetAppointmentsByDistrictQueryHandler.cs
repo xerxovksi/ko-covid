@@ -13,6 +13,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using static KO.Covid.Application.Constants;
+
     public class GetAppointmentsByDistrictQueryHandler
         : IRequestHandler<GetAppointmentsByDistrictQuery, AppointmentResponse>
     {
@@ -80,7 +82,7 @@
 
             await this.appointmentsCache.SetAsync(
                 appointmentCacheKey,
-                TimeSpan.FromMinutes(15),
+                AppointmentsCacheDuration,
                 () => appointments.ToJson());
 
             return appointments;
@@ -175,7 +177,7 @@
             var responseContent = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode == false)
             {
-                throw new GeoException(
+                throw new AppointmentException(
                     $"Failed to fetch Appointments. Status Code: {(int)response.StatusCode}. Content: {responseContent}.");
             }
 

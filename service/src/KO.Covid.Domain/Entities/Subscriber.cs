@@ -1,10 +1,11 @@
 ﻿namespace KO.Covid.Domain.Entities
 {
-    using System;
     using System.Collections.Generic;
 
     public class Subscriber : Entity
     {
+        public string Name { get; set; }
+
         public string Mobile { get; set; }
 
         public string Email { get; set; }
@@ -17,7 +18,7 @@
 
         public HashSet<int> LastNotifiedCenters { get; set; }
 
-        public DateTime? LastNotifiedOn { get; set; }
+        public bool? IsActive { get; set; }
 
         public Subscriber()
         {

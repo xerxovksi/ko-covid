@@ -15,13 +15,16 @@
     {
         private readonly IMediator mediator = null;
         private readonly INotifier notifier = null;
+        private readonly ITelemetryLogger<NotifyAppointmentsByDistrictCommandHandler> logger = null;
 
         public NotifyAppointmentsByDistrictCommandHandler(
             IMediator mediator,
-            INotifier notifier)
+            INotifier notifier,
+            ITelemetryLogger<NotifyAppointmentsByDistrictCommandHandler> logger)
         {
             this.mediator = mediator;
             this.notifier = notifier;
+            this.logger = logger;
         }
 
         public async Task<List<string>> Handle(
@@ -32,12 +35,20 @@
                 new GetActiveSubscribersQuery());
             if (activeSubscribers.IsNullOrEmpty())
             {
+                this.logger.LogInformation("No active subscribers found.");
                 return default;
             }
 
+            var activeSubscribersCount = activeSubscribers.Count;
             var notifiedSubscribers = new List<string>();
-            foreach (var subscriber in activeSubscribers)
+            this.logger.LogInformation(
+                "Found {activeSubscribersCount} active subscribers.",
+                activeSubscribersCount);
+
+            for (var i = 0; i < activeSubscribersCount; i++)
             {
+                var subscriber = activeSubscribers[i];
+
                 // ToDo: Enable this check when
                 // the availability of appointments is high.
                 //if (request.ShouldClearNotifications)

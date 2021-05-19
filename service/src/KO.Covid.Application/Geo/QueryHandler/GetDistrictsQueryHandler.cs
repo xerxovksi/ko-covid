@@ -12,6 +12,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using static KO.Covid.Application.Constants;
+
     public class GetDistrictsQueryHandler
         : IRequestHandler<GetDistrictsQuery, DistrictsResponse>
     {
@@ -65,7 +67,7 @@
             
             await this.districtsCache.SetAsync(
                 request.StateName,
-                TimeSpan.FromDays(1),
+                GeoCacheDuration,
                 () => districts.ToJson());
 
             return districts;

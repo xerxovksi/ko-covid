@@ -23,15 +23,23 @@
                 {
                     Subscriber = new Subscriber
                     {
+                        Name = subscriber.Name,
                         Mobile = subscriber.Mobile,
                         Email = subscriber.Email,
                         Age = subscriber.Age,
                         Pincodes = subscriber.Pincodes,
-                        Districts = subscriber.Districts
+                        Districts = subscriber.Districts,
+                        IsActive = true
                     }
                 },
                 successLogMessage: _ => "Successfully created Subscriber with Mobile: {mobile}.",
                 successLogParameters: result => new string[] { result.Mobile });
+
+        [HttpGet]
+        [Route("subscribers")]
+        public async Task<IActionResult> GetActiveAsync() =>
+            await this.mediator.SendAsync(
+                new GetActiveSubscribersQuery());
 
         [HttpPut]
         [Route("subscribers")]
@@ -41,11 +49,13 @@
                 {
                     Subscriber = new Subscriber
                     {
+                        Name = subscriber.Name,
                         Mobile = subscriber.Mobile,
                         Email = subscriber.Email,
                         Age = subscriber.Age,
                         Pincodes = subscriber.Pincodes,
-                        Districts = subscriber.Districts
+                        Districts = subscriber.Districts,
+                        IsActive = true
                     }
                 },
                 successLogMessage: _ => "Successfully updated Subscriber with Mobile: {mobile}.",

@@ -5,6 +5,8 @@
 
     public class SubscriberCommandValidator : AbstractValidator<SubscriberCommand>
     {
+        private const int Limit = 3;
+
         public SubscriberCommandValidator()
         {
             RuleFor(request => request.Subscriber)
@@ -45,6 +47,22 @@
                 .NotEqual(false)
                 .WithMessage(
                     "Either Subscriber.Districts or Subscriber.Pincodes should be non-empty."));
+
+            When(
+                request => !request.Subscriber.Districts.IsNullOrEmpty(),
+                () => RuleFor(
+                    request => request.Subscriber.Districts.Count)
+                .LessThanOrEqualTo(Limit)
+                .WithMessage(
+                    $"Subscriber.Districts.Count should be less than or equal to {Limit}."));
+
+            When(
+                request => !request.Subscriber.Pincodes.IsNullOrEmpty(),
+                () => RuleFor(
+                    request => request.Subscriber.Pincodes.Count)
+                .LessThanOrEqualTo(Limit)
+                .WithMessage(
+                    $"Subscriber.Pincodes.Count should be less than or equal to {Limit}."));
         }
     }
 }

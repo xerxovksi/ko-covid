@@ -11,20 +11,23 @@
     using System.Threading.Tasks;
 
     public class NotifyAppointmentsByPincodeCommandHandler
-        : IRequestHandler<NotifyAppointmentsByPincodeCommand, bool>
+        : IRequestHandler<NotifyAppointmentsByPincodeCommand, List<string>>
     {
         private readonly IMediator mediator = null;
         private readonly INotifier notifier = null;
+        private readonly ITelemetryLogger<NotifyAppointmentsByPincodeCommandHandler> logger = null;
 
         public NotifyAppointmentsByPincodeCommandHandler(
             IMediator mediator,
-            INotifier notifier)
+            INotifier notifier,
+            ITelemetryLogger<NotifyAppointmentsByPincodeCommandHandler> logger)
         {
             this.mediator = mediator;
             this.notifier = notifier;
+            this.logger = logger;
         }
 
-        public async Task<bool> Handle(
+        public async Task<List<string>> Handle(
             NotifyAppointmentsByPincodeCommand request,
             CancellationToken cancellationToken)
         {
@@ -32,15 +35,26 @@
                 new GetActiveSubscribersQuery());
             if (activeSubscribers.IsNullOrEmpty())
             {
-                return true;
+                this.logger.LogInformation("No active subscribers found.");
+                return default;
             }
 
-            foreach (var subscriber in activeSubscribers)
+            var activeSubscribersCount = activeSubscribers.Count;
+            var notifiedSubscribers = new List<string>();
+            this.logger.LogInformation(
+                "Found {activeSubscribersCount} active subscribers.",
+                activeSubscribersCount);
+
+            for (var i = 0; i < activeSubscribersCount; i++)
             {
-                if (request.ShouldClearNotifications)
-                {
-                    subscriber.LastNotifiedCenters.Clear();
-                }
+                var subscriber = activeSubscribers[i];
+
+                // ToDo: Enable this check when
+                // the availability of appointments is high.
+                //if (request.ShouldClearNotifications)
+                //{
+                subscriber.LastNotifiedCenters.Clear();
+                //}
 
                 var appointments = await this.GetAppointmentsAsync(subscriber, request.Date);
                 var notification = Notification.GetAppointmentNotification(appointments, subscriber);
@@ -54,6 +68,8 @@
                     recepients: new List<string> { subscriber.Email },
                     message: notification.Message);
 
+                notifiedSubscribers.Add(subscriber.Mobile);
+
                 subscriber.LastNotifiedCenters =
                     subscriber.LastNotifiedCenters.AddRange(notification.Centers);
 
@@ -61,7 +77,7 @@
                     new UpdateSubscriberCommand { Subscriber = subscriber });
             }
 
-            return true;
+            return notifiedSubscribers;
         }
 
         private async Task<List<AppointmentCalendarResponse>> GetAppointmentsAsync(

@@ -2,9 +2,10 @@
 {
     using KO.Covid.Application.Contracts;
     using MediatR;
-    using System;
     using System.Threading;
     using System.Threading.Tasks;
+
+    using static KO.Covid.Application.Constants;
 
     public class RegisterPincodeTokenCommandHandler
         : IRequestHandler<RegisterPincodeTokenCommand, bool>
@@ -20,7 +21,7 @@
             CancellationToken cancellationToken) =>
             await this.tokenCache.SetAsync(
                 TokenCacheKey,
-                TimeSpan.FromDays(3),
+                TokenCacheDuration,
                 () => request.InternalPincodeToken);
     }
 }

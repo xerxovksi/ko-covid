@@ -29,7 +29,7 @@ namespace KO.Covid.Subscriber.Functions
                 },
                 successLogMessage: result => result.IsNullOrEmpty() 
                     ? default    
-                    : "Successfully notified appointments by district to {notifiedSubscribers} subscribers.",
+                    : "Successfully notified appointments to subscribers: {notifiedSubscribers}.",
                 successLogParameters: result => result.IsNullOrEmpty() 
                     ? default
                     : new string[] { result.ToJson() });

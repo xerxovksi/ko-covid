@@ -1,5 +1,6 @@
 ﻿namespace KO.Covid.Application.Subscriber
 {
+    using KO.Covid.Application.Authorization;
     using KO.Covid.Application.Contracts;
     using KO.Covid.Domain;
     using KO.Covid.Domain.Entities;
@@ -12,26 +13,23 @@
     public class GetActiveSubscribersQueryHandler
         : IRequestHandler<GetActiveSubscribersQuery, List<Subscriber>>
     {
-        private const string ActiveCacheKey = "ActiveUsers";
-
-        private readonly ICache<HashSet<string>> activeCache = null;
         private readonly IRepository<Subscriber> repository = null;
+        private readonly IMediator mediator = null;
 
         public GetActiveSubscribersQueryHandler(
-            ICache<HashSet<string>> activeCache,
-            IRepository<Subscriber> repository)
+            IRepository<Subscriber> repository,
+            IMediator mediator)
         {
-            this.activeCache = activeCache;
             this.repository = repository;
+            this.mediator = mediator;
         }
 
         public async Task<List<Subscriber>> Handle(
             GetActiveSubscribersQuery request,
             CancellationToken cancellationToken)
         {
-            var activeUsers = await this.activeCache.GetAsync(
-                ActiveCacheKey,
-                result => result.FromJson<HashSet<string>>());
+            var activeUsers = await this.mediator.Send(
+                new GetActiveUsersQuery());
 
             if (activeUsers.IsNullOrEmpty())
             {

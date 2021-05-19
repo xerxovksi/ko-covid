@@ -46,6 +46,14 @@
 
         private void RegisterAuthorizationHandlers(ContainerBuilder builder)
         {
+            builder.RegisterType<AddActiveUserCommandHandler>()
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<GetActiveUsersQueryHandler>()
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
             builder.RegisterType<GenerateOtpCommandHandler>()
                 .AsImplementedInterfaces()
                 .WithParameter(
@@ -149,6 +157,10 @@
 
             builder.RegisterType<CreateSubscriberCommandValidator>()
                 .As<IValidator<CreateSubscriberCommand>>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<GetActiveSubscribersQueryHandler>()
+                .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<UpdateSubscriberCommandHandler>()

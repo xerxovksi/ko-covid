@@ -44,7 +44,7 @@ namespace KO.Covid.Subscriber
                     secretClient,
                     new AzureKeyVaultConfigurationOptions
                     {
-                        ReloadInterval = TimeSpan.FromHours(24)
+                        ReloadInterval = TimeSpan.FromDays(1)
                     })
                 .Build();
 

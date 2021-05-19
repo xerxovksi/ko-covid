@@ -1,8 +1,9 @@
 ﻿namespace KO.Covid.Application.Appointment
 {
     using MediatR;
+    using System.Collections.Generic;
 
-    public class NotifyAppointmentsByPincodeCommand : IRequest<bool>
+    public class NotifyAppointmentsByPincodeCommand : IRequest<List<string>>
     {
         public string Date { get; set; }
 
