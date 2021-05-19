@@ -10,8 +10,14 @@
         public SubscriberCommandValidator()
         {
             RuleFor(request => request.Subscriber)
+                .NotNull();
+
+            When(
+                request => request.Subscriber != null,
+                () => RuleFor(
+                    request => request.Subscriber.Name)
                 .NotNull()
-                .WithMessage("Subscriber should not be null.");
+                .NotEmpty());
 
             When(
                 request => request.Subscriber != null,
@@ -36,8 +42,7 @@
                 () => RuleFor(
                     request => request.Subscriber.Age)
                 .NotNull()
-                .GreaterThan(0)
-                .WithMessage("Subscriber.Age is invalid."));
+                .GreaterThan(0));
 
             When(
                 request => request.Subscriber != null,
@@ -52,17 +57,13 @@
                 request => !request.Subscriber.Districts.IsNullOrEmpty(),
                 () => RuleFor(
                     request => request.Subscriber.Districts.Count)
-                .LessThanOrEqualTo(Limit)
-                .WithMessage(
-                    $"Subscriber.Districts.Count should be less than or equal to {Limit}."));
+                .LessThanOrEqualTo(Limit));
 
             When(
                 request => !request.Subscriber.Pincodes.IsNullOrEmpty(),
                 () => RuleFor(
                     request => request.Subscriber.Pincodes.Count)
-                .LessThanOrEqualTo(Limit)
-                .WithMessage(
-                    $"Subscriber.Pincodes.Count should be less than or equal to {Limit}."));
+                .LessThanOrEqualTo(Limit));
         }
     }
 }
