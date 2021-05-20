@@ -8,7 +8,7 @@
     {
         Task<T> GetAsync(string key, Func<string, T> converter);
 
-        Task<Dictionary<string, T>> GetAllAsync(string pattern, Func<string, T> converter);
+        Task<Dictionary<string, T>> GetAllAsync(Func<string, T> converter, string pattern = default);
 
         Task<bool> SetAsync(string key, TimeSpan timeToLive, Func<string> converter);
 

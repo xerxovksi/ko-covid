@@ -20,8 +20,8 @@
         }
 
         public async Task<Dictionary<string, T>> GetAllAsync(
-            string pattern,
-            Func<string, T> converter)
+            Func<string, T> converter,
+            string pattern = default)
         {
             await this.redis.InitializeAsync();
 
