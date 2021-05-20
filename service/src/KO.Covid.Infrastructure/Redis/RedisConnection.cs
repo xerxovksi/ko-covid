@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    internal class RedisConnection : IRedisConnection
+    public class RedisConnection : IRedisConnection
     {
         private const int MaximumRetryAttempts = 5;
 
