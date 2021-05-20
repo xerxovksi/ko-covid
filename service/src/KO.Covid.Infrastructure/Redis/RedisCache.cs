@@ -6,7 +6,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public class RedisCache<T> : ICache<T> where T : class
+    public class RedisCache<T> : ICache<T>
     {
         private readonly IRedisConnection redis = null;
 
@@ -19,7 +19,9 @@
             return converter(await this.redis.Cache.StringGetAsync(key));
         }
 
-        public async Task<Dictionary<string, T>> GetAllAsync(string pattern, Func<string, T> converter)
+        public async Task<Dictionary<string, T>> GetAllAsync(
+            string pattern,
+            Func<string, T> converter)
         {
             await this.redis.InitializeAsync();
 
@@ -36,10 +38,16 @@
             return values;
         }
 
-        public async Task<bool> SetAsync(string key, TimeSpan expiry, Func<string> converter)
+        public async Task<bool> SetAsync(
+            string key,
+            TimeSpan timeToLive,
+            Func<string> converter)
         {
             await this.redis.InitializeAsync();
-            return await this.redis.Cache.StringSetAsync(key, converter(), expiry);
+            return await this.redis.Cache.StringSetAsync(
+                key,
+                converter(),
+                timeToLive);
         }
 
         public async Task<bool> RemoveAsync(string key)
