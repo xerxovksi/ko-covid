@@ -3,6 +3,7 @@
     using KO.Covid.Application.Contracts;
     using KO.Covid.Domain;
     using MediatR;
+    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
@@ -13,38 +14,38 @@
         : IRequestHandler<AddActiveUserCommand, bool>
     {
         private const string ActiveCacheKey = "ActiveUsers";
-        private readonly ICache<HashSet<string>> activeCache = null;
+        private readonly ICache<Dictionary<string, DateTime>> activeCache = null;
 
-        public AddActiveUserCommandHandler(ICache<HashSet<string>> activeCache) =>
+        public AddActiveUserCommandHandler(ICache<Dictionary<string, DateTime>> activeCache) =>
             this.activeCache = activeCache;
 
         public async Task<bool> Handle(
             AddActiveUserCommand request,
             CancellationToken cancellationToken)
         {
-            var activeMobiles = await this.activeCache.GetAsync(
-                ActiveCacheKey,
-                result => result.FromJson<HashSet<string>>());
+            var timeToLive = DateTime.Now.Add(ActiveCacheDuration);
 
-            if (activeMobiles == default)
+            var activeUsers = await this.activeCache.GetAsync(
+                ActiveCacheKey,
+                result => result.FromJson<Dictionary<string, DateTime>>());
+
+            if (activeUsers.IsNullOrEmpty())
             {
                 return await this.activeCache.SetAsync(
                     ActiveCacheKey,
                     ActiveCacheDuration,
-                    () => new List<string> { request.Mobile }.ToJson());
+                    () => new Dictionary<string, DateTime>
+                    {
+                        { request.Mobile, timeToLive }
+                    }.ToJson());
             }
 
-            if (activeMobiles.Contains(request.Mobile))
-            {
-                return true;
-            }
-
-            activeMobiles.Add(request.Mobile);
+            activeUsers[request.Mobile] = timeToLive;
             
             return await this.activeCache.SetAsync(
                 ActiveCacheKey,
                 ActiveCacheDuration,
-                () => activeMobiles.ToJson());
+                () => activeUsers.ToJson());
         }
     }
 }

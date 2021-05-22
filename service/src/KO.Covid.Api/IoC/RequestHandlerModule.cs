@@ -54,6 +54,10 @@
                 .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();
 
+            builder.RegisterType<RemoveInactiveUsersCommandHandler>()
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
             builder.RegisterType<GenerateOtpCommandHandler>()
                 .AsImplementedInterfaces()
                 .WithParameter(

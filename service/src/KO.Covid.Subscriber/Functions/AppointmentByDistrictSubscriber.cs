@@ -25,7 +25,8 @@ namespace KO.Covid.Subscriber.Functions
                 request: new NotifyAppointmentsByDistrictCommand
                 {
                     Date = startDate,
-                    ShouldClearNotifications = !startDate.Equals(endDate)
+                    ShouldClearNotifications = !startDate.Equals(endDate),
+                    ShouldClearInactiveUsers = !startDate.Equals(endDate)
                 },
                 successLogMessage: result => result.IsNullOrEmpty() 
                     ? default    

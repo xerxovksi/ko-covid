@@ -3,7 +3,9 @@
     using KO.Covid.Application.Contracts;
     using KO.Covid.Domain;
     using MediatR;
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -11,16 +13,23 @@
         : IRequestHandler<GetActiveUsersQuery, HashSet<string>>
     {
         private const string ActiveCacheKey = "ActiveUsers";
-        private readonly ICache<HashSet<string>> activeCache = null;
+        private readonly ICache<Dictionary<string, DateTime>> activeCache = null;
 
-        public GetActiveUsersQueryHandler(ICache<HashSet<string>> activeCache) =>
+        public GetActiveUsersQueryHandler(ICache<Dictionary<string, DateTime>> activeCache) =>
             this.activeCache = activeCache;
 
         public async Task<HashSet<string>> Handle(
             GetActiveUsersQuery request,
-            CancellationToken cancellationToken) =>
-            await this.activeCache.GetAsync(
+            CancellationToken cancellationToken)
+        {
+            var activeUsers = await this.activeCache.GetAsync(
                 ActiveCacheKey,
-                result => result.FromJson<HashSet<string>>());
+                result => result.FromJson<Dictionary<string, DateTime>>());
+
+            return activeUsers
+                .Where(item => DateTime.Now <= item.Value)
+                .Select(item => item.Key)
+                .ToHashSet();
+        }
     }
 }

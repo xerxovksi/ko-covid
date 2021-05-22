@@ -1,5 +1,6 @@
 ﻿namespace KO.Covid.Application.Appointment
 {
+    using KO.Covid.Application.Authorization;
     using KO.Covid.Application.Contracts;
     using KO.Covid.Application.Models;
     using KO.Covid.Application.Subscriber;
@@ -48,6 +49,11 @@
             for (var i = 0; i < activeSubscribersCount; i++)
             {
                 var subscriber = activeSubscribers[i];
+
+                if (request.ShouldClearInactiveUsers)
+                {
+                    await this.mediator.Send(new RemoveInactiveUsersCommand());
+                }
 
                 // ToDo: Enable this check when
                 // the availability of appointments is high.

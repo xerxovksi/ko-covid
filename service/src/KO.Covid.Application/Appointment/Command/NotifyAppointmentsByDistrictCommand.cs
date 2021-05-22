@@ -8,5 +8,7 @@
         public string Date { get; set; }
 
         public bool ShouldClearNotifications { get; set; }
+
+        public bool ShouldClearInactiveUsers { get; set; }
     }
 }

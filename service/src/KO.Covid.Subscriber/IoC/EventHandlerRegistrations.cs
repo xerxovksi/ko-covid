@@ -41,6 +41,10 @@
             services.AddScoped(
                 typeof(IRequestHandler<GetActiveUsersQuery, HashSet<string>>),
                 typeof(GetActiveUsersQueryHandler));
+
+            services.AddScoped(
+                typeof(IRequestHandler<RemoveInactiveUsersCommand, bool>),
+                typeof(RemoveInactiveUsersCommandHandler));
         }
 
         private static void AddSubscriberHandlers(this IServiceCollection services)
