@@ -44,16 +44,5 @@
                     InternalDistrictToken = request.InternalDistrictToken
                 },
                 successLogMessage: _ => "Successfully registered District token.");
-
-        [HttpPost]
-        [Route("register/pincode/token")]
-        public async Task<IActionResult> RegisterPincodeTokenAsync(
-            [FromBody] RegisterPincodeTokenRequest request) =>
-            await this.mediator.SendAsync(
-                request: new RegisterPincodeTokenCommand
-                {
-                    InternalPincodeToken = request.InternalPincodeToken
-                },
-                successLogMessage: _ => "Successfully registered Pincode token.");
     }
 }

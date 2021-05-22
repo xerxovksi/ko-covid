@@ -1,11 +1,11 @@
 ﻿namespace KO.Covid.Application.Subscriber
 {
     using FluentValidation;
-    using KO.Covid.Domain;
 
     public class SubscriberCommandValidator : AbstractValidator<SubscriberCommand>
     {
-        private const int Limit = 3;
+        private const int MinimumLimit = 1;
+        private const int MaximumLimit = 3;
 
         public SubscriberCommandValidator()
         {
@@ -46,27 +46,12 @@
                 .WithMessage("Should be greater than 0."));
 
             When(
-                request => request.Subscriber != null,
-                () => RuleFor(
-                    request => !request.Subscriber.Districts.IsNullOrEmpty()
-                    || !request.Subscriber.Pincodes.IsNullOrEmpty())
-                .NotEqual(false)
-                .WithMessage(
-                    "Either Subscriber.Districts or Subscriber.Pincodes should be non-empty."));
-
-            When(
-                request => !request.Subscriber.Districts.IsNullOrEmpty(),
+                request => request.Subscriber.Districts != null,
                 () => RuleFor(
                     request => request.Subscriber.Districts.Count)
-                .LessThanOrEqualTo(Limit)
-                .WithMessage($"Should be less than or equal to {Limit}."));
-
-            When(
-                request => !request.Subscriber.Pincodes.IsNullOrEmpty(),
-                () => RuleFor(
-                    request => request.Subscriber.Pincodes.Count)
-                .LessThanOrEqualTo(Limit)
-                .WithMessage($"Should be less than or equal to {Limit}."));
+                .GreaterThanOrEqualTo(MinimumLimit)
+                .LessThanOrEqualTo(MaximumLimit)
+                .WithMessage($"Should be between {MinimumLimit} and {MaximumLimit}."));
         }
     }
 }

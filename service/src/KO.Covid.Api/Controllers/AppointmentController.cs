@@ -45,33 +45,5 @@
                     Date = date,
                     Mobile = mobile
                 });
-
-        [HttpGet]
-        [Route("appointment/bypincode/{mobile}")]
-        public async Task<IActionResult> GetAppointmentAsync(
-            string mobile,
-            [FromQuery] string pincode,
-            [FromQuery] string date) =>
-            await this.mediator.SendAsync(
-                new GetAppointmentsByPincodeQuery
-                {
-                    Pincode = pincode,
-                    Date = date,
-                    Mobile = mobile
-                });
-
-        [HttpGet]
-        [Route("appointment/calendar/bypincode/{mobile}")]
-        public async Task<IActionResult> GetAppointmentCalendarAsync(
-            string mobile,
-            [FromQuery] string pincode,
-            [FromQuery] string date) =>
-            await this.mediator.SendAsync(
-                new GetAppointmentsCalendarByPincodeQuery
-                {
-                    Pincode = pincode,
-                    Date = date,
-                    Mobile = mobile
-                });
     }
 }

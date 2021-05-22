@@ -83,14 +83,6 @@
             builder.RegisterType<RegisterDistrictTokenCommandValidator>()
                 .As<IValidator<RegisterDistrictTokenCommand>>()
                 .InstancePerLifetimeScope();
-
-            builder.RegisterType<RegisterPincodeTokenCommandHandler>()
-                .AsImplementedInterfaces()
-                .InstancePerLifetimeScope();
-
-            builder.RegisterType<RegisterPincodeTokenCommandValidator>()
-                .As<IValidator<RegisterPincodeTokenCommand>>()
-                .InstancePerLifetimeScope();
         }
 
         private void RegisterGeoHandlers(ContainerBuilder builder)
@@ -126,24 +118,6 @@
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<GetAppointmentsCalendarByDistrictQueryHandler>()
-                .AsImplementedInterfaces()
-                .WithParameter(
-                    new ResolvedParameter(
-                        (parameter, _) => parameter.Name == "appointmentClient",
-                        (_, context) => context.ResolveNamed<HttpClient>("appointmentClient")))
-                .WithParameter("baseAddress", this.cowinBaseAddress)
-                .InstancePerLifetimeScope();
-
-            builder.RegisterType<GetAppointmentsByPincodeQueryHandler>()
-                .AsImplementedInterfaces()
-                .WithParameter(
-                    new ResolvedParameter(
-                        (parameter, _) => parameter.Name == "appointmentClient",
-                        (_, context) => context.ResolveNamed<HttpClient>("appointmentClient")))
-                .WithParameter("baseAddress", this.cowinBaseAddress)
-                .InstancePerLifetimeScope();
-
-            builder.RegisterType<GetAppointmentsCalendarByPincodeQueryHandler>()
                 .AsImplementedInterfaces()
                 .WithParameter(
                     new ResolvedParameter(

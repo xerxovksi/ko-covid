@@ -14,8 +14,6 @@
 
         public List<Geo> Districts { get; set; }
 
-        public List<string> Pincodes { get; set; }
-
         public HashSet<int> LastNotifiedCenters { get; set; }
 
         public bool? IsActive { get; set; }
@@ -23,7 +21,6 @@
         public Subscriber()
         {
             this.Districts = new List<Geo>();
-            this.Pincodes = new List<string>();
             this.LastNotifiedCenters = new HashSet<int>();
         }
 

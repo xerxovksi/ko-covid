@@ -27,7 +27,6 @@
                         Mobile = subscriber.Mobile,
                         Email = subscriber.Email,
                         Age = subscriber.Age,
-                        Pincodes = subscriber.Pincodes,
                         Districts = subscriber.Districts,
                         IsActive = true
                     }
@@ -53,7 +52,6 @@
                         Mobile = subscriber.Mobile,
                         Email = subscriber.Email,
                         Age = subscriber.Age,
-                        Pincodes = subscriber.Pincodes,
                         Districts = subscriber.Districts,
                         IsActive = true
                     }

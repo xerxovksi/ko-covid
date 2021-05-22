@@ -103,19 +103,6 @@
                     appointmentsCache: provider.GetRequiredService<ICache<AppointmentCalendarResponse>>(),
                     appointmentClient: provider.GetRequiredService<HttpClient>(),
                     baseAddress: baseAddress));
-
-            services.AddScoped(
-                typeof(IRequestHandler<NotifyAppointmentsByPincodeCommand, List<string>>),
-                typeof(NotifyAppointmentsByPincodeCommandHandler));
-
-            services.AddScoped(
-                typeof(IRequestHandler<GetAppointmentsCalendarByPincodeQuery, AppointmentCalendarResponse>),
-                provider => new GetAppointmentsCalendarByPincodeQueryHandler(
-                    credentialCache: provider.GetRequiredService<ICache<Credential>>(),
-                    tokenCache: provider.GetRequiredService<ICache<string>>(),
-                    appointmentsCache: provider.GetRequiredService<ICache<AppointmentCalendarResponse>>(),
-                    appointmentClient: provider.GetRequiredService<HttpClient>(),
-                    baseAddress: baseAddress));
         }
     }
 }
