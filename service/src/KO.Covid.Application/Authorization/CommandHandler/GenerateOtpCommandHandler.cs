@@ -65,8 +65,7 @@
             if (response.IsSuccessStatusCode == false)
             {
                 throw new AuthorizationException(
-                    request.Mobile,
-                    $"Status Code: {(int)response.StatusCode}. Content: {responseContent}.");
+                    $"Failed to generate OTP for mobile: {request.Mobile}. Status Code: {(int)response.StatusCode}. Content: {responseContent}.");
             }
 
             var otpResponse = responseContent.FromJson<GenerateOtpResponse>();

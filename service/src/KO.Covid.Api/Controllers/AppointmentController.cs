@@ -15,9 +15,8 @@
             this.mediator = mediator;
 
         [HttpGet]
-        [Route("appointment/bydistrict/{mobile}")]
+        [Route("appointment/bydistrict")]
         public async Task<IActionResult> GetAppointmentAsync(
-            string mobile,
             [FromQuery] string stateName,
             [FromQuery] string districtName,
             [FromQuery] string date) =>
@@ -26,14 +25,12 @@
                 {
                     StateName = stateName,
                     DistrictName = districtName,
-                    Date = date,
-                    Mobile = mobile
+                    Date = date
                 });
 
         [HttpGet]
-        [Route("appointment/calendar/bydistrict/{mobile}")]
+        [Route("appointment/calendar/bydistrict")]
         public async Task<IActionResult> GetAppointmentCalendarAsync(
-            string mobile,
             [FromQuery] string stateName,
             [FromQuery] string districtName,
             [FromQuery] string date) =>
@@ -42,8 +39,7 @@
                 {
                     StateName = stateName,
                     DistrictName = districtName,
-                    Date = date,
-                    Mobile = mobile
+                    Date = date
                 });
     }
 }

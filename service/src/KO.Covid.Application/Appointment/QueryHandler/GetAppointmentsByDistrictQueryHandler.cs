@@ -1,5 +1,6 @@
 ﻿namespace KO.Covid.Application.Appointment
 {
+    using KO.Covid.Application.Authorization;
     using KO.Covid.Application.Contracts;
     using KO.Covid.Application.Exceptions;
     using KO.Covid.Application.Geo;
@@ -19,13 +20,8 @@
         : IRequestHandler<GetAppointmentsByDistrictQuery, AppointmentResponse>
     {
         private const string ApiAddress = "api/v2/appointment/sessions/public/findByDistrict";
-        private const string StatesCacheKey = "States";
 
         private readonly IMediator mediator = null;
-
-        private readonly ICache<Credential> credentialCache = null;
-        private readonly ICache<StatesResponse> statesCache = null;
-        private readonly ICache<DistrictsResponse> districtsCache = null;
         private readonly ICache<AppointmentResponse> appointmentsCache = null;
 
         private readonly HttpClient appointmentClient = null;
@@ -33,18 +29,11 @@
 
         public GetAppointmentsByDistrictQueryHandler(
             IMediator mediator,
-            ICache<Credential> credentialCache,
-            ICache<StatesResponse> statesCache,
-            ICache<DistrictsResponse> districtsCache,
             ICache<AppointmentResponse> appointmentsCache,
             HttpClient appointmentClient,
             string baseAddress)
         {
             this.mediator = mediator;
-
-            this.credentialCache = credentialCache;
-            this.statesCache = statesCache;
-            this.districtsCache = districtsCache;
             this.appointmentsCache = appointmentsCache;
 
             this.appointmentClient = appointmentClient;
@@ -66,14 +55,17 @@
                 return appointments;
             }
 
-            var state = await this.GetStateAsync(request);
-            var district = await this.GetDistrictAsync(request, state);
-            var credential = await this.GetCredentialAsync(request);
+            var state = await this.GetStateAsync(request.StateName);
+            var district = await this.GetDistrictAsync(state.Name, request.DistrictName);
+
+            var token = string.IsNullOrWhiteSpace(request.PublicToken)
+                ? await this.mediator.Send(new GetPublicTokenQuery())
+                : request.PublicToken;
 
             appointments = await this.GetAppointmentsAsync(
                 district,
                 request.Date,
-                credential);
+                token);
 
             if (appointments.Sessions.IsNullOrEmpty())
             {
@@ -88,73 +80,43 @@
             return appointments;
         }
 
-        private async Task<Credential> GetCredentialAsync(GetAppointmentsByDistrictQuery request)
+        private async Task<State> GetStateAsync(string stateName)
         {
-            var credential = await this.credentialCache.GetAsync(
-                request.Mobile,
-                result => result.FromJson<Credential>());
-
-            if (credential == default || string.IsNullOrEmpty(credential.Token))
+            var states = await this.mediator.Send(new GetStatesQuery());
+            if (states == default || states.States.IsNullOrEmpty())
             {
-                throw new AuthorizationException(
-                    request.Mobile,
-                    "OTP is either invalid or has expired. Please re-generate.");
-            }
-
-            return credential;
-        }
-
-        private async Task<State> GetStateAsync(GetAppointmentsByDistrictQuery request)
-        {
-            var states = await this.statesCache.GetAsync(
-                StatesCacheKey,
-                result => result.FromJson<StatesResponse>());
-
-            if (states == default)
-            {
-                states = await this.mediator.Send(
-                    new GetStatesQuery { Mobile = request.Mobile });
+                throw new GeoException("Failed to fetch States.");
             }
 
             var state = states.States
-                .Where(item => item.Name.EqualsIgnoreCase(request.StateName))
+                .Where(item => item.Name.EqualsIgnoreCase(stateName))
                 .FirstOrDefault();
 
             if (state == default)
             {
-                throw new ArgumentException(
-                    $"Invalid {nameof(request.StateName)}: {request.StateName}.");
+                throw new ArgumentException($"Invalid State: {stateName}.");
             }
 
             return state;
         }
 
-        private async Task<District> GetDistrictAsync(
-            GetAppointmentsByDistrictQuery request,
-            State state)
+        private async Task<District> GetDistrictAsync(string stateName, string districtName)
         {
-            var districts = await this.districtsCache.GetAsync(
-                request.StateName,
-                result => result.FromJson<DistrictsResponse>());
-
-            if (districts == default)
+            var districts = await this.mediator.Send(
+                new GetDistrictsQuery { StateName = stateName });
+            if (districts == default || districts.Districts.IsNullOrEmpty())
             {
-                districts = await this.mediator.Send(
-                    new GetDistrictsQuery
-                    {
-                        StateName = state.Name,
-                        Mobile = request.Mobile
-                    });
+                throw new GeoException("Failed to fetch Districts.");
             }
 
             var district = districts.Districts
-                .Where(item => item.Name.EqualsIgnoreCase(request.DistrictName))
+                .Where(item => item.Name.EqualsIgnoreCase(districtName))
                 .FirstOrDefault();
 
             if (district == default)
             {
                 throw new ArgumentException(
-                    $"Invalid {nameof(request.DistrictName)}: {request.DistrictName}.");
+                    $"Invalid District: {districtName} for State: {stateName}.");
             }
 
             return district;
@@ -163,7 +125,7 @@
         private async Task<AppointmentResponse> GetAppointmentsAsync(
             District district,
             string date,
-            Credential credential)
+            string token)
         {
             var requestMessage = new HttpRequestMessage
             {
@@ -171,7 +133,7 @@
                 RequestUri = new UriBuilder(
                     $"{this.baseAddress}/{ApiAddress}?district_id={district.Id}&date={date}").Uri,
             };
-            requestMessage.Headers.TryAddWithoutValidation("Bearer", credential.Token);
+            requestMessage.Headers.TryAddWithoutValidation("Bearer", token);
 
             var response = await appointmentClient.SendAsync(requestMessage);
             var responseContent = await response.Content.ReadAsStringAsync();

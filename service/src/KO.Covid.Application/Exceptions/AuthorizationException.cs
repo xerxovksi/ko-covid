@@ -4,8 +4,7 @@
 
     public class AuthorizationException : Exception
     {
-        public AuthorizationException(string mobile, string reason)
-            : base($"Failed to authorize mobile: {mobile}. Reason: {reason}")
+        public AuthorizationException(string message) : base(message)
         {
         }
     }

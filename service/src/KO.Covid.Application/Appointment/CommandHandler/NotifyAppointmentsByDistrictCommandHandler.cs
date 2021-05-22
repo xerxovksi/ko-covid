@@ -40,20 +40,21 @@
                 return default;
             }
 
+            if (request.ShouldCleanUpInactiveResources)
+            {
+                await this.mediator.Send(new RemoveInactiveUsersCommand());
+                await this.mediator.Send(new RemoveInactiveTokensCommand());
+            }
+
             var activeSubscribersCount = activeSubscribers.Count;
-            var notifiedSubscribers = new List<string>();
             this.logger.LogInformation(
                 "Found {activeSubscribersCount} active subscribers.",
                 activeSubscribersCount);
 
+            var notifiedSubscribers = new List<string>();
             for (var i = 0; i < activeSubscribersCount; i++)
             {
                 var subscriber = activeSubscribers[i];
-
-                if (request.ShouldClearInactiveUsers)
-                {
-                    await this.mediator.Send(new RemoveInactiveUsersCommand());
-                }
 
                 // ToDo: Enable this check when
                 // the availability of appointments is high.
@@ -99,8 +100,7 @@
                         {
                             StateName = district.StateName,
                             DistrictName = district.DistrictName,
-                            Date = date,
-                            Mobile = subscriber.Mobile
+                            Date = date
                         }));
             }
 

@@ -17,11 +17,7 @@
         [HttpGet]
         [Route("states/{mobile}")]
         public async Task<IActionResult> GetStatesAsync(string mobile) =>
-            await this.mediator.SendAsync(
-                new GetStatesQuery
-                {
-                    Mobile = mobile
-                });
+            await this.mediator.SendAsync(new GetStatesQuery());
 
         [HttpGet]
         [Route("districts/{mobile}")]
@@ -29,10 +25,6 @@
             string mobile,
             [FromQuery] string stateName) =>
             await this.mediator.SendAsync(
-                new GetDistrictsQuery
-                {
-                    StateName = stateName,
-                    Mobile = mobile
-                });
+                new GetDistrictsQuery { StateName = stateName });
     }
 }

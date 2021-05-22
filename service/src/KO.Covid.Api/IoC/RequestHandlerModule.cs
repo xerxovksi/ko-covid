@@ -76,12 +76,28 @@
                 .WithParameter("baseAddress", this.cowinBaseAddress)
                 .InstancePerLifetimeScope();
 
-            builder.RegisterType<RegisterDistrictTokenCommandHandler>()
+            builder.RegisterType<AddInternalTokenCommandHandler>()
                 .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();
 
-            builder.RegisterType<RegisterDistrictTokenCommandValidator>()
-                .As<IValidator<RegisterDistrictTokenCommand>>()
+            builder.RegisterType<GetInternalTokenQueryHandler>()
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<AddPublicTokenCommandHandler>()
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<GetPublicTokenQueryHandler>()
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<AddPublicTokenCommandValidator>()
+                .As<IValidator<AddPublicTokenCommand>>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<AddInternalTokenCommandValidator>()
+                .As<IValidator<AddInternalTokenCommand>>()
                 .InstancePerLifetimeScope();
         }
 

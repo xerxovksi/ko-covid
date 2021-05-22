@@ -5,8 +5,8 @@
 
     public class GetDistrictsQuery : IRequest<DistrictsResponse>
     {
-        public string Mobile { get; set; }
-
         public string StateName { get; set; }
+
+        public string PublicToken { get; set; }
     }
 }

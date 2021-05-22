@@ -38,6 +38,9 @@
                 typeof(IRequestHandler<AddActiveUserCommand, bool>),
                 typeof(AddActiveUserCommandHandler));
 
+            services.AddScoped<IValidator<AddActiveUserCommand>>(
+                _ => new AddActiveUserCommandValidator());
+
             services.AddScoped(
                 typeof(IRequestHandler<GetActiveUsersQuery, HashSet<string>>),
                 typeof(GetActiveUsersQueryHandler));
@@ -45,6 +48,18 @@
             services.AddScoped(
                 typeof(IRequestHandler<RemoveInactiveUsersCommand, bool>),
                 typeof(RemoveInactiveUsersCommandHandler));
+
+            services.AddScoped(
+                typeof(IRequestHandler<GetPublicTokenQuery, string>),
+                typeof(GetPublicTokenQueryHandler));
+
+            services.AddScoped(
+                typeof(IRequestHandler<GetInternalTokenQuery, string>),
+                typeof(GetInternalTokenQueryHandler));
+
+            services.AddScoped(
+                typeof(IRequestHandler<RemoveInactiveTokensCommand, bool>),
+                typeof(RemoveInactiveTokensCommandHandler));
         }
 
         private static void AddSubscriberHandlers(this IServiceCollection services)
@@ -68,7 +83,7 @@
             services.AddScoped(
                 typeof(IRequestHandler<GetStatesQuery, StatesResponse>),
                 provider => new GetStatesQueryHandler(
-                    credentialCache: provider.GetRequiredService<ICache<Credential>>(),
+                    mediator: provider.GetRequiredService<IMediator>(),
                     statesCache: provider.GetRequiredService<ICache<StatesResponse>>(),
                     geoClient: provider.GetRequiredService<HttpClient>(),
                     baseAddress: baseAddress));
@@ -77,8 +92,6 @@
                 typeof(IRequestHandler<GetDistrictsQuery, DistrictsResponse>),
                 provider => new GetDistrictsQueryHandler(
                     mediator: provider.GetRequiredService<IMediator>(),
-                    credentialCache: provider.GetRequiredService<ICache<Credential>>(),
-                    statesCache: provider.GetRequiredService<ICache<StatesResponse>>(),
                     districtsCache: provider.GetRequiredService<ICache<DistrictsResponse>>(),
                     geoClient: provider.GetRequiredService<HttpClient>(),
                     baseAddress: baseAddress));
@@ -89,20 +102,16 @@
             string baseAddress)
         {
             services.AddScoped(
-                typeof(IRequestHandler<NotifyAppointmentsByDistrictCommand, List<string>>),
-                typeof(NotifyAppointmentsByDistrictCommandHandler));
-
-            services.AddScoped(
                 typeof(IRequestHandler<GetAppointmentsCalendarByDistrictQuery, AppointmentCalendarResponse>),
                 provider => new GetAppointmentsCalendarByDistrictQueryHandler(
                     mediator: provider.GetRequiredService<IMediator>(),
-                    credentialCache: provider.GetRequiredService<ICache<Credential>>(),
-                    tokenCache: provider.GetRequiredService<ICache<string>>(),
-                    statesCache: provider.GetRequiredService<ICache<StatesResponse>>(),
-                    districtsCache: provider.GetRequiredService<ICache<DistrictsResponse>>(),
                     appointmentsCache: provider.GetRequiredService<ICache<AppointmentCalendarResponse>>(),
                     appointmentClient: provider.GetRequiredService<HttpClient>(),
                     baseAddress: baseAddress));
+
+            services.AddScoped(
+                typeof(IRequestHandler<NotifyAppointmentsByDistrictCommand, List<string>>),
+                typeof(NotifyAppointmentsByDistrictCommandHandler));
         }
     }
 }

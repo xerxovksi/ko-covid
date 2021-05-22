@@ -1,5 +1,6 @@
 ﻿namespace KO.Covid.Application.Geo
 {
+    using KO.Covid.Application.Authorization;
     using KO.Covid.Application.Contracts;
     using KO.Covid.Application.Exceptions;
     using KO.Covid.Application.Models;
@@ -18,21 +19,21 @@
         private const string ApiAddress = "api/v2/admin/location/states";
         private const string StatesCacheKey = "States";
 
-        private readonly ICache<Credential> credentialCache = null;
+        private readonly IMediator mediator = null;
         private readonly ICache<StatesResponse> statesCache = null;
 
         private readonly HttpClient geoClient = null;
         private readonly string baseAddress = null;
 
         public GetStatesQueryHandler(
-            ICache<Credential> credentialCache,
+            IMediator mediator,
             ICache<StatesResponse> statesCache,
             HttpClient geoClient,
             string baseAddress)
         {
-            this.credentialCache = credentialCache;
+            this.mediator = mediator;
             this.statesCache = statesCache;
-            
+
             this.geoClient = geoClient;
             this.baseAddress = baseAddress;
         }
@@ -50,8 +51,15 @@
                 return states;
             }
 
-            var credential = await this.GetCredentialAsync(request);
-            states = await this.GetStatesAsync(credential);
+            var token = string.IsNullOrWhiteSpace(request.PublicToken)
+                ? await this.mediator.Send(new GetPublicTokenQuery())
+                : request.PublicToken;
+            
+            states = await this.GetStatesAsync(token);
+            if (states == default || states.States.IsNullOrEmpty())
+            {
+                return states;
+            }
             
             await this.statesCache.SetAsync(
                 StatesCacheKey,
@@ -61,30 +69,14 @@
             return states;
         }
 
-        private async Task<Credential> GetCredentialAsync(GetStatesQuery request)
-        {
-            var credential = await this.credentialCache.GetAsync(
-                request.Mobile,
-                result => result.FromJson<Credential>());
-
-            if (credential == default || string.IsNullOrEmpty(credential.Token))
-            {
-                throw new AuthorizationException(
-                    request.Mobile,
-                    "OTP is either invalid or has expired. Please re-generate.");
-            }
-
-            return credential;
-        }
-
-        private async Task<StatesResponse> GetStatesAsync(Credential credential)
+        private async Task<StatesResponse> GetStatesAsync(string token)
         {
             var requestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
                 RequestUri = new UriBuilder($"{this.baseAddress}/{ApiAddress}").Uri,
             };
-            requestMessage.Headers.TryAddWithoutValidation("Bearer", credential.Token);
+            requestMessage.Headers.TryAddWithoutValidation("Bearer", token);
 
             var response = await geoClient.SendAsync(requestMessage);
             var responseContent = await response.Content.ReadAsStringAsync();

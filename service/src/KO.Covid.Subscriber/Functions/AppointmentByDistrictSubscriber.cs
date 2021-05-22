@@ -26,7 +26,7 @@ namespace KO.Covid.Subscriber.Functions
                 {
                     Date = startDate,
                     ShouldClearNotifications = !startDate.Equals(endDate),
-                    ShouldClearInactiveUsers = !startDate.Equals(endDate)
+                    ShouldCleanUpInactiveResources = !startDate.Equals(endDate)
                 },
                 successLogMessage: result => result.IsNullOrEmpty() 
                     ? default    

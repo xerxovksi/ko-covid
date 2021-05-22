@@ -9,6 +9,6 @@
 
         public bool ShouldClearNotifications { get; set; }
 
-        public bool ShouldClearInactiveUsers { get; set; }
+        public bool ShouldCleanUpInactiveResources { get; set; }
     }
 }

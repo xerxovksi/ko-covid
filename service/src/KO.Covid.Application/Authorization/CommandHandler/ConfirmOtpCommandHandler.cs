@@ -12,8 +12,6 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    using static KO.Covid.Application.Constants;
-
     public class ConfirmOtpCommandHandler
         : IRequestHandler<ConfirmOtpCommand, bool>
     {
@@ -49,21 +47,18 @@
             if (credential == default)
             {
                 throw new AuthorizationException(
-                    request.Mobile,
-                    "OTP is either invalid or has expired. Please re-generate.");
+                    $"OTP is either invalid or has expired for mobile: {request.Mobile}. Please re-generate.");
             }
 
-            credential = await this.GetCredentialAsync(request, credential.TransactionId);
-            await this.credentialCache.SetAsync(
-                request.Mobile,
-                CredentialCacheDuration,
-                () => credential.ToJson());
+            var token = await this.GetTokenAsync(request, credential.TransactionId);
+            await this.mediator.Send(
+                new AddPublicTokenCommand { PublicToken = token });
 
             return await this.mediator.Send(
                 new AddActiveUserCommand { Mobile = request.Mobile });
         }
 
-        private async Task<Credential> GetCredentialAsync(
+        private async Task<string> GetTokenAsync(
             ConfirmOtpCommand request,
             string transactionId)
         {
@@ -89,19 +84,17 @@
             if (response.IsSuccessStatusCode == false)
             {
                 throw new AuthorizationException(
-                    request.Mobile,
-                    $"Status Code: {(int)response.StatusCode}. Content: {responseContent}.");
+                    $"OTP is either invalid or has expired for mobile: {request.Mobile}. Please re-generate. Status Code: {(int)response.StatusCode}. Content: {responseContent}.");
             }
 
             var otpResponse = responseContent.FromJson<ConfirmOtpResponse>();
-
-            return new Credential
+            if (otpResponse == null || string.IsNullOrWhiteSpace(otpResponse.Token))
             {
-                Mobile = request.Mobile,
-                TransactionId = transactionId,
-                Otp = payload.Otp,
-                Token = otpResponse.Token
-            };
+                throw new AuthorizationException(
+                    $"OTP is either invalid or has expired for mobile: {request.Mobile}. Please re-generate. Status Code: {(int)response.StatusCode}. Content: {responseContent}.");
+            }
+
+            return otpResponse.Token;
         }
     }
 }

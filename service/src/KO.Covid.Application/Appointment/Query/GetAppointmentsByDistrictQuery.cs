@@ -11,6 +11,6 @@
 
         public string Date { get; set; }
 
-        public string Mobile { get; set; }
+        public string PublicToken { get; set; }
     }
 }

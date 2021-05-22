@@ -19,30 +19,45 @@
         [Route("generateotp/{mobile}")]
         public async Task<IActionResult> GenerateOtpAsync(string mobile) =>
             await this.mediator.SendAsync(
-                new GenerateOtpCommand
+                request: new GenerateOtpCommand
                 {
                     Mobile = mobile
-                });
+                },
+                successLogMessage: _ => "Initiated authorization of user with mobile: {mobile}.",
+                successLogParameters: _ => new string[] { mobile });
 
         [HttpGet]
         [Route("confirmotp/{mobile}/{otp}")]
         public async Task<IActionResult> ConfirmOtpAsync(string mobile, string otp) =>
             await this.mediator.SendAsync(
-                new ConfirmOtpCommand
+                request: new ConfirmOtpCommand
                 {
                     Mobile = mobile,
                     Otp = otp
-                });
+                },
+                successLogMessage: _ => "Successfully authorized user with mobile: {mobile}.",
+                successLogParameters: _ => new string[] { mobile });
 
         [HttpPost]
-        [Route("register/district/token")]
-        public async Task<IActionResult> RegisterDistrictTokenAsync(
-            [FromBody] RegisterDistrictTokenRequest request) =>
+        [Route("register/public/token")]
+        public async Task<IActionResult> RegisterPublicTokenAsync(
+            [FromBody] RegisterTokenRequest request) =>
             await this.mediator.SendAsync(
-                request: new RegisterDistrictTokenCommand
+                request: new AddPublicTokenCommand
                 {
-                    InternalDistrictToken = request.InternalDistrictToken
+                    PublicToken = request.Token
                 },
-                successLogMessage: _ => "Successfully registered District token.");
+                successLogMessage: _ => "Successfully registered public token.");
+
+        [HttpPost]
+        [Route("register/internal/token")]
+        public async Task<IActionResult> RegisterInternalTokenAsync(
+            [FromBody] RegisterTokenRequest request) =>
+            await this.mediator.SendAsync(
+                request: new AddInternalTokenCommand
+                {
+                    InternalToken = request.Token
+                },
+                successLogMessage: _ => "Successfully registered internal token.");
     }
 }
