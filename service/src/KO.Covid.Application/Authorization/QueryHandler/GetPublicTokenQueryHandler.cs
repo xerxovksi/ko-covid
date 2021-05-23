@@ -15,19 +15,18 @@
     {
         private const string TokenCacheKey = "PublicTokens";
 
+        private readonly ITokenLoadBalancer loadBalancer = null;
         private readonly ICache<Dictionary<string, DateTime>> tokenCache = null;
         private readonly ITelemetryLogger<GetPublicTokenQueryHandler> logger = null;
 
-        private readonly Random randomGenerator = null;
-
         public GetPublicTokenQueryHandler(
+            ITokenLoadBalancer loadBalancer,
             ICache<Dictionary<string, DateTime>> tokenCache,
             ITelemetryLogger<GetPublicTokenQueryHandler> logger)
         {
+            this.loadBalancer = loadBalancer;
             this.tokenCache = tokenCache;
             this.logger = logger;
-
-            this.randomGenerator = new Random();
         }
 
         public async Task<string> Handle(
@@ -50,11 +49,12 @@
                 throw new AuthorizationException(warningMessage);
             }
 
+            var index = this.loadBalancer.GetIndex(validTokens.Count);
             this.logger.LogInformation(
-                "Found {activePublicTokenCount} active public tokens.",
-                validTokens.Count);
+                "Found {activePublicTokenCount} active public tokens. Selected index: {activePublicTokenIndex}.",
+                validTokens.Count,
+                index);
 
-            var index = this.randomGenerator.Next(0, validTokens.Count - 1);
             return validTokens[index];
         }
     }

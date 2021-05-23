@@ -6,12 +6,15 @@
     using KO.Covid.Application.Authorization;
     using KO.Covid.Application.Contracts;
     using KO.Covid.Application.Geo;
+    using KO.Covid.Application.LoadBalancers;
     using KO.Covid.Application.Models;
     using KO.Covid.Application.Subscriber;
     using KO.Covid.Domain.Entities;
     using MediatR;
     using Microsoft.Extensions.DependencyInjection;
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Net.Http;
 
     public static class EventHandlerRegistrations
@@ -24,12 +27,24 @@
 
             services.AddSingleton(_ => new HttpClient());
 
+            services.AddLoadBalancers();
             services.AddAuthorizationHandlers();
             services.AddSubscriberHandlers();
             services.AddGeoHandlers(baseAddress);
             services.AddAppointmentHandlers(baseAddress);
 
             return services;
+        }
+
+        private static void AddLoadBalancers(this IServiceCollection services)
+        {
+            var threshold = 1000;
+
+            services.AddSingleton<ITokenLoadBalancer>(
+                _ => new InternalTokenLoadBalancer(TokenType.Internal, threshold));
+
+            services.AddSingleton<ITokenLoadBalancer>(
+                _ => new PublicTokenLoadBalancer(TokenType.Public, threshold));
         }
 
         private static void AddAuthorizationHandlers(this IServiceCollection services)
@@ -50,12 +65,20 @@
                 typeof(RemoveInactiveUsersCommandHandler));
 
             services.AddScoped(
-                typeof(IRequestHandler<GetPublicTokenQuery, string>),
-                typeof(GetPublicTokenQueryHandler));
+                typeof(IRequestHandler<GetInternalTokenQuery, string>),
+                provider => new GetInternalTokenQueryHandler(
+                    loadBalancer: provider.GetServices<ITokenLoadBalancer>()
+                        .First(instance => instance.TokenType.Equals(TokenType.Internal)),
+                    tokenCache: provider.GetRequiredService<ICache<Dictionary<string, DateTime>>>(),
+                    logger: provider.GetRequiredService<ITelemetryLogger<GetInternalTokenQueryHandler>>()));
 
             services.AddScoped(
-                typeof(IRequestHandler<GetInternalTokenQuery, string>),
-                typeof(GetInternalTokenQueryHandler));
+                typeof(IRequestHandler<GetPublicTokenQuery, string>),
+                provider => new GetPublicTokenQueryHandler(
+                    loadBalancer: provider.GetServices<ITokenLoadBalancer>()
+                        .First(instance => instance.TokenType.Equals(TokenType.Public)),
+                    tokenCache: provider.GetRequiredService<ICache<Dictionary<string, DateTime>>>(),
+                    logger: provider.GetRequiredService<ITelemetryLogger<GetPublicTokenQueryHandler>>()));
 
             services.AddScoped(
                 typeof(IRequestHandler<RemoveInactiveTokensCommand, bool>),

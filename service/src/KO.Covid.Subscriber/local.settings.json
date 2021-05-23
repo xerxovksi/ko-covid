@@ -4,7 +4,7 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
     "ASPNETCORE_ENVIRONMENT": "Development",
-    "SUBSCRIBER_TIMER": "0 0/2 * * * *",
+    "SUBSCRIBER_TIMER": "0 0/1 * * * *",
     "KEY_VAULT_URI": "https://sparta.vault.azure.net/",
     "SERVICE_BASE_ADDRESS": "https://ko-covid-service.azurewebsites.net",
     "COWIN_BASE_ADDRESS": "https://cdn-api.co-vin.in",

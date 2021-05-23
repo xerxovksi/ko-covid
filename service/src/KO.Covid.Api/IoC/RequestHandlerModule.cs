@@ -10,6 +10,8 @@
     using System.Net.Http;
     using KO.Covid.Application.Subscriber;
     using FluentValidation;
+    using KO.Covid.Application.LoadBalancers;
+    using KO.Covid.Application.Models;
 
     public class RequestHandlerModule : Module
     {
@@ -36,12 +38,30 @@
                 .Named<HttpClient>("appointmentClient")
                 .SingleInstance();
 
+            this.RegisterLoadBalancers(builder);
             this.RegisterAuthorizationHandlers(builder);
             this.RegisterGeoHandlers(builder);
             this.RegisterAppointmentHandlers(builder);
             this.RegisterSubscriberHandlers(builder);
 
             base.Load(builder);
+        }
+
+        private void RegisterLoadBalancers(ContainerBuilder builder)
+        {
+            var threshold = 1000;
+
+            builder.RegisterType<InternalTokenLoadBalancer>()
+                .WithParameter("tokenType", TokenType.Internal)
+                .WithParameter("threshold", threshold)
+                .Named<ITokenLoadBalancer>("internalTokenLoadBalancer")
+                .SingleInstance();
+
+            builder.RegisterType<PublicTokenLoadBalancer>()
+                .WithParameter("tokenType", TokenType.Public)
+                .WithParameter("threshold", threshold)
+                .Named<ITokenLoadBalancer>("publicTokenLoadBalancer")
+                .SingleInstance();
         }
 
         private void RegisterAuthorizationHandlers(ContainerBuilder builder)
@@ -81,6 +101,10 @@
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<GetInternalTokenQueryHandler>()
+                .WithParameter(
+                    new ResolvedParameter(
+                        (parameter, _) => parameter.Name == "loadBalancer",
+                        (_, context) => context.ResolveNamed<ITokenLoadBalancer>("internalTokenLoadBalancer")))
                 .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();
 
@@ -89,15 +113,19 @@
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<GetPublicTokenQueryHandler>()
+                .WithParameter(
+                    new ResolvedParameter(
+                        (parameter, _) => parameter.Name == "loadBalancer",
+                        (_, context) => context.ResolveNamed<ITokenLoadBalancer>("publicTokenLoadBalancer")))
                 .AsImplementedInterfaces()
-                .InstancePerLifetimeScope();
-
-            builder.RegisterType<AddPublicTokenCommandValidator>()
-                .As<IValidator<AddPublicTokenCommand>>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<AddInternalTokenCommandValidator>()
                 .As<IValidator<AddInternalTokenCommand>>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<AddPublicTokenCommandValidator>()
+                .As<IValidator<AddPublicTokenCommand>>()
                 .InstancePerLifetimeScope();
         }
 

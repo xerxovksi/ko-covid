@@ -28,6 +28,8 @@
         private readonly HttpClient appointmentClient = null;
         private readonly string baseAddress = null;
 
+        private readonly ExecutionPolicy policy = null;
+
         public GetAppointmentsCalendarByDistrictQueryHandler(
             IMediator mediator,
             ICache<AppointmentCalendarResponse> appointmentsCache,
@@ -39,6 +41,8 @@
 
             this.appointmentClient = appointmentClient;
             this.baseAddress = baseAddress;
+
+            policy = new ExecutionPolicy();
         }
 
         public async Task<AppointmentCalendarResponse> Handle(
@@ -58,15 +62,22 @@
 
             var state = await this.GetStateAsync(request.StateName);
             var district = await this.GetDistrictAsync(state.Name, request.DistrictName);
-            
-            var token = string.IsNullOrWhiteSpace(request.InternalToken)
-                ? await this.mediator.Send(new GetInternalTokenQuery())
-                : request.InternalToken;
 
-            appointments = await this.GetAppointmentsAsync(
-                district,
-                request.Date,
-                token);
+            appointments = await this.policy.WithRetryAsync(
+                operation: async () =>
+                {
+                    var token = string.IsNullOrWhiteSpace(request.InternalToken)
+                    ? await this.mediator.Send(new GetInternalTokenQuery())
+                    : request.InternalToken;
+
+                    return await this.GetAppointmentsAsync(
+                        district,
+                        request.Date,
+                        token);
+                },
+                isSuccessful: _ => true,
+                maximumRetryCount: 3,
+                shouldThrowIfMaximumRetriesExceeded: true);
 
             if (appointments.Centers.IsNullOrEmpty())
             {

@@ -67,6 +67,9 @@
                 var notification = Notification.GetAppointmentNotification(appointments, subscriber);
                 if (string.IsNullOrWhiteSpace(notification.Message))
                 {
+                    this.logger.LogInformation(
+                        "Did not find any appointments suitable for the subscriber: {subscriberMobile}.",
+                        subscriber.Mobile);
                     continue;
                 }
 
