@@ -36,7 +36,7 @@
         {
             await this.ValidateAsync(request.InternalToken);
 
-            var timeToLive = DateTime.Now.Add(ActiveCacheDuration);
+            var timeToLive = DateTime.Now.Add(TokenCacheDuration);
 
             var tokens = await this.tokenCache.GetAsync(
                 TokenCacheKey,
