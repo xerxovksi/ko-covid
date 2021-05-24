@@ -14,8 +14,6 @@
     public class AddPublicTokenCommandHandler
         : IRequestHandler<AddPublicTokenCommand, bool>
     {
-        private const string TokenCacheKey = "PublicTokens";
-
         private readonly IMediator mediator = null;
         private readonly ICache<Dictionary<string, DateTime>> tokenCache = null;
 
@@ -36,13 +34,13 @@
             var timeToLive = DateTime.Now.Add(TokenCacheDuration);
 
             var tokens = await this.tokenCache.GetAsync(
-                TokenCacheKey,
+                PublicTokensCacheKey,
                 result => result.FromJson<Dictionary<string, DateTime>>());
 
             if (tokens.IsNullOrEmpty())
             {
                 return await this.tokenCache.SetAsync(
-                    TokenCacheKey,
+                    PublicTokensCacheKey,
                     TokenCacheDuration,
                     () => new Dictionary<string, DateTime>
                     {
@@ -53,7 +51,7 @@
             tokens[request.PublicToken] = timeToLive;
 
             return await this.tokenCache.SetAsync(
-                TokenCacheKey,
+                PublicTokensCacheKey,
                 TokenCacheDuration,
                 () => tokens.ToJson());
         }

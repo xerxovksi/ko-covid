@@ -9,10 +9,11 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using static KO.Covid.Application.Constants;
+
     public class RemoveInactiveUsersCommandHandler
         : IRequestHandler<RemoveInactiveUsersCommand, bool>
     {
-        private const string ActiveCacheKey = "ActiveUsers";
         private readonly ICache<Dictionary<string, DateTime>> activeCache = null;
 
         public RemoveInactiveUsersCommandHandler(ICache<Dictionary<string, DateTime>> activeCache) =>

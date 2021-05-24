@@ -129,6 +129,7 @@
                 provider => new GetAppointmentsCalendarByDistrictQueryHandler(
                     mediator: provider.GetRequiredService<IMediator>(),
                     appointmentsCache: provider.GetRequiredService<ICache<AppointmentCalendarResponse>>(),
+                    logger: provider.GetRequiredService<ITelemetryLogger<GetAppointmentsCalendarByDistrictQueryHandler>>(),
                     appointmentClient: provider.GetRequiredService<HttpClient>(),
                     baseAddress: baseAddress));
 

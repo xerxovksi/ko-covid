@@ -17,7 +17,6 @@
         : IRequestHandler<GetStatesQuery, StatesResponse>
     {
         private const string ApiAddress = "api/v2/admin/location/states";
-        private const string StatesCacheKey = "States";
 
         private readonly IMediator mediator = null;
         private readonly ICache<StatesResponse> statesCache = null;

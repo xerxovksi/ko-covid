@@ -13,7 +13,6 @@
     public class AddActiveUserCommandHandler
         : IRequestHandler<AddActiveUserCommand, bool>
     {
-        private const string ActiveCacheKey = "ActiveUsers";
         private readonly ICache<Dictionary<string, DateTime>> activeCache = null;
 
         public AddActiveUserCommandHandler(ICache<Dictionary<string, DateTime>> activeCache) =>

@@ -9,12 +9,11 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using static KO.Covid.Application.Constants;
+
     public class RemoveInactiveTokensCommandHandler
         : IRequestHandler<RemoveInactiveTokensCommand, bool>
     {
-        private const string PublicTokensCacheKey = "PublicTokens";
-        private const string InternalTokensCacheKey = "InternalTokens";
-
         private readonly ICache<Dictionary<string, DateTime>> tokenCache = null;
 
         public RemoveInactiveTokensCommandHandler(ICache<Dictionary<string, DateTime>> tokenCache) =>

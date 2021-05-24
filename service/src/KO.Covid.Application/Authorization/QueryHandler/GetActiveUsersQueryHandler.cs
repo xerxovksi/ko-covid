@@ -9,11 +9,11 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using static KO.Covid.Application.Constants;
+
     public class GetActiveUsersQueryHandler
         : IRequestHandler<GetActiveUsersQuery, HashSet<string>>
     {
-        private const string ActiveCacheKey = "ActiveUsers";
-
         private readonly ICache<Dictionary<string, DateTime>> activeCache = null;
 
         public GetActiveUsersQueryHandler(ICache<Dictionary<string, DateTime>> activeCache) =>

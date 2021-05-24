@@ -10,11 +10,11 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using static KO.Covid.Application.Constants;
+
     public class GetInternalTokenQueryHandler
         : IRequestHandler<GetInternalTokenQuery, string>
     {
-        private const string TokenCacheKey = "InternalTokens";
-
         private readonly ITokenLoadBalancer loadBalancer = null;
         private readonly ICache<Dictionary<string, DateTime>> tokenCache = null;
         private readonly ITelemetryLogger<GetInternalTokenQueryHandler> logger = null;
@@ -34,7 +34,7 @@
             CancellationToken cancellationToken)
         {
             var tokens = await this.tokenCache.GetAsync(
-                TokenCacheKey,
+                InternalTokensCacheKey,
                 result => result.FromJson<Dictionary<string, DateTime>>());
 
             var validTokens = tokens

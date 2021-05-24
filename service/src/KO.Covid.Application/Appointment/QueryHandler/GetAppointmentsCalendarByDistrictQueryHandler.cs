@@ -24,6 +24,7 @@
 
         private readonly IMediator mediator = null;
         private readonly ICache<AppointmentCalendarResponse> appointmentsCache = null;
+        private readonly ITelemetryLogger<GetAppointmentsCalendarByDistrictQueryHandler> logger = null;
 
         private readonly HttpClient appointmentClient = null;
         private readonly string baseAddress = null;
@@ -33,11 +34,13 @@
         public GetAppointmentsCalendarByDistrictQueryHandler(
             IMediator mediator,
             ICache<AppointmentCalendarResponse> appointmentsCache,
+            ITelemetryLogger<GetAppointmentsCalendarByDistrictQueryHandler> logger,
             HttpClient appointmentClient,
             string baseAddress)
         {
             this.mediator = mediator;
             this.appointmentsCache = appointmentsCache;
+            this.logger = logger;
 
             this.appointmentClient = appointmentClient;
             this.baseAddress = baseAddress;
@@ -152,6 +155,8 @@
             if (response.IsSuccessStatusCode == false)
             {
                 var errorMessage = $"Failed to fetch Appointments. Status Code: {(int)response.StatusCode}. Content: {responseContent}.";
+                this.logger.LogWarning(errorMessage);
+                
                 if (response.StatusCode.Equals(HttpStatusCode.Unauthorized)
                     || response.StatusCode.Equals(HttpStatusCode.Forbidden))
                 {

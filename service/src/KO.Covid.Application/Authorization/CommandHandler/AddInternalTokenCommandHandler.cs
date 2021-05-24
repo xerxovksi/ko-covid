@@ -17,8 +17,6 @@
         private const string ValidationState = "West Bengal";
         private const string ValidationDistrict = "Kolkata";
 
-        private const string TokenCacheKey = "InternalTokens";
-
         private readonly IMediator mediator = null;
         private readonly ICache<Dictionary<string, DateTime>> tokenCache = null;
 
@@ -39,13 +37,13 @@
             var timeToLive = DateTime.Now.Add(TokenCacheDuration);
 
             var tokens = await this.tokenCache.GetAsync(
-                TokenCacheKey,
+                InternalTokensCacheKey,
                 result => result.FromJson<Dictionary<string, DateTime>>());
 
             if (tokens.IsNullOrEmpty())
             {
                 return await this.tokenCache.SetAsync(
-                    TokenCacheKey,
+                    InternalTokensCacheKey,
                     TokenCacheDuration,
                     () => new Dictionary<string, DateTime>
                     {
@@ -56,7 +54,7 @@
             tokens[request.InternalToken] = timeToLive;
             
             return await this.tokenCache.SetAsync(
-                TokenCacheKey,
+                InternalTokensCacheKey,
                 TokenCacheDuration,
                 () => tokens.ToJson());
         }
