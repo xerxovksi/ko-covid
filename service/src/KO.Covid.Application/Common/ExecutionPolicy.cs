@@ -17,7 +17,7 @@
             var intervalPeriod = 500;
             var retryCount = 0;
 
-            while (retryCount <= maximumRetryCount)
+            while (retryCount < maximumRetryCount)
             {
                 ExceptionDispatchInfo exceptionInfo = null;
                 try
@@ -42,7 +42,7 @@
                 }
 
                 if (exceptionInfo != null
-                    && retryCount.Equals(maximumRetryCount - 1))
+                    && retryCount.Equals(maximumRetryCount))
                 {
                     exceptionInfo.Throw();
                 }
@@ -71,7 +71,7 @@
             var intervalPeriod = 500;
             var retryCount = 0;
 
-            while (retryCount <= maximumRetryCount)
+            while (retryCount < maximumRetryCount)
             {
                 ExceptionDispatchInfo exceptionInfo = null;
                 try
@@ -96,7 +96,7 @@
                 }
 
                 if (exceptionInfo != null
-                    && retryCount.Equals(maximumRetryCount - 1))
+                    && retryCount.Equals(maximumRetryCount))
                 {
                     exceptionInfo.Throw();
                 }
