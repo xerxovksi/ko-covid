@@ -120,6 +120,10 @@
                 .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();
 
+            builder.RegisterType<GetCredentialQueryHandler>()
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
             builder.RegisterType<AddInternalTokenCommandValidator>()
                 .As<IValidator<AddInternalTokenCommand>>()
                 .InstancePerLifetimeScope();
@@ -173,20 +177,24 @@
 
         private void RegisterSubscriberHandlers(ContainerBuilder builder)
         {
-            builder.RegisterType<CreateSubscriberCommandHandler>()
+            builder.RegisterType<GetSubscriberQueryHandler>()
                 .AsImplementedInterfaces()
-                .InstancePerLifetimeScope();
-
-            builder.RegisterType<CreateSubscriberCommandValidator>()
-                .As<IValidator<CreateSubscriberCommand>>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<GetActiveSubscribersQueryHandler>()
                 .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();
 
+            builder.RegisterType<CreateSubscriberCommandHandler>()
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
             builder.RegisterType<UpdateSubscriberCommandHandler>()
                 .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<CreateSubscriberCommandValidator>()
+                .As<IValidator<CreateSubscriberCommand>>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<UpdateSubscriberCommandValidator>()

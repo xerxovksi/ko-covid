@@ -15,6 +15,18 @@
         public SubscriberController(IRequestMediator mediator) =>
             this.mediator = mediator;
 
+        [HttpGet]
+        [Route("subscribers/{mobile}")]
+        public async Task<IActionResult> GetAsync(string mobile) =>
+            await this.mediator.SendAsync(
+                new GetSubscriberQuery { Mobile = mobile });
+
+        [HttpGet]
+        [Route("subscribers")]
+        public async Task<IActionResult> GetActiveAsync() =>
+            await this.mediator.SendAsync(
+                new GetActiveSubscribersQuery());
+
         [HttpPost]
         [Route("subscribers")]
         public async Task<IActionResult> CreateAsync(Subscriber subscriber) =>
@@ -33,12 +45,6 @@
                 },
                 successLogMessage: _ => "Successfully created Subscriber with Mobile: {mobile}.",
                 successLogParameters: result => new string[] { result.Mobile });
-
-        [HttpGet]
-        [Route("subscribers")]
-        public async Task<IActionResult> GetActiveAsync() =>
-            await this.mediator.SendAsync(
-                new GetActiveSubscribersQuery());
 
         [HttpPut]
         [Route("subscribers")]

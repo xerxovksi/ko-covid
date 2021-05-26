@@ -12,6 +12,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using static KO.Covid.Application.Constants;
+
     public class ConfirmOtpCommandHandler
         : IRequestHandler<ConfirmOtpCommand, bool>
     {
@@ -50,9 +52,14 @@
                     $"OTP is either invalid or has expired for mobile: {request.Mobile}. Please re-generate.");
             }
 
-            var token = await this.GetTokenAsync(request, credential.TransactionId);
+            credential.Token = await this.GetTokenAsync(request, credential.TransactionId);
+            await this.credentialCache.SetAsync(
+                request.Mobile,
+                CredentialCacheDuration,
+                () => credential.ToJson());
+
             await this.mediator.Send(
-                new AddPublicTokenCommand { PublicToken = token });
+                new AddPublicTokenCommand { PublicToken = credential.Token });
 
             return await this.mediator.Send(
                 new AddActiveUserCommand { Mobile = request.Mobile });

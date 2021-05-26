@@ -1,0 +1,9 @@
+@import "../../theme";
+
+.otp-loading {
+  margin-top: -10px !important;
+  height: 10vh;
+  text-align: center;
+
+  @include flex(center);
+}

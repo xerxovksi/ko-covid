@@ -40,7 +40,7 @@
             var credential = await this.GetCredentialAsync(request);
             await this.credentialCache.SetAsync(
                 request.Mobile,
-                CredentialCacheDuration,
+                TemporaryCredentialCacheDuration,
                 () => credential.ToJson());
 
             return true;

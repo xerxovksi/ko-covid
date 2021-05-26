@@ -1,0 +1,17 @@
+$white: #fff;
+$black: #000;
+
+$primaryColor: #e83283;
+$secondaryColor: #686dc3;
+
+$alternatePrimaryColor: #f7bad5;
+$alternateSecondaryColor: #c8cae9;
+
+$textColor: #686dc3;
+
+@mixin flex($alignItems) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: $alignItems;
+}

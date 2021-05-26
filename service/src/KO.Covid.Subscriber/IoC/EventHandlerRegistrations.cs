@@ -83,6 +83,10 @@
             services.AddScoped(
                 typeof(IRequestHandler<RemoveInactiveTokensCommand, bool>),
                 typeof(RemoveInactiveTokensCommandHandler));
+
+            services.AddScoped(
+                typeof(IRequestHandler<GetCredentialQuery, Credential>),
+                typeof(GetCredentialQueryHandler));
         }
 
         private static void AddSubscriberHandlers(this IServiceCollection services)
