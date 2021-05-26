@@ -21,6 +21,7 @@
         : IRequestHandler<GetAppointmentsCalendarByDistrictQuery, AppointmentCalendarResponse>
     {
         private const string ApiAddress = "api/v2/appointment/sessions/calendarByDistrict";
+        private const int MaximumRetryAttempts = 5;
 
         private readonly IMediator mediator = null;
         private readonly ICache<AppointmentCalendarResponse> appointmentsCache = null;
@@ -79,7 +80,7 @@
                         token);
                 },
                 isSuccessful: _ => true,
-                maximumRetryCount: 3,
+                maximumRetryCount: MaximumRetryAttempts,
                 shouldThrowIfMaximumRetriesExceeded: true);
 
             if (appointments.Centers.IsNullOrEmpty())
