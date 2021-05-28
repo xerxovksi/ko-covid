@@ -1,5 +1,6 @@
 ﻿namespace KO.Covid.Domain.Entities
 {
+    using System;
     using System.Collections.Generic;
 
     public class Subscriber : Entity
@@ -14,14 +15,16 @@
 
         public List<Geo> Districts { get; set; }
 
-        public HashSet<int> LastNotifiedCenters { get; set; }
-
         public bool? IsActive { get; set; }
+
+        public HashSet<int> NotifiedCenters { get; set; }
+
+        public DateTime? LastNotifiedOn { get; set; }
 
         public Subscriber()
         {
             this.Districts = new List<Geo>();
-            this.LastNotifiedCenters = new HashSet<int>();
+            this.NotifiedCenters = new HashSet<int>();
         }
 
         public Subscriber AddId()

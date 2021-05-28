@@ -3,6 +3,7 @@
     using KO.Covid.Application.Contracts;
     using KO.Covid.Application.Subscriber;
     using KO.Covid.Domain.Entities;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using System.Threading.Tasks;
 
@@ -16,18 +17,20 @@
             this.mediator = mediator;
 
         [HttpGet]
-        [Route("subscribers/{mobile}")]
-        public async Task<IActionResult> GetAsync(string mobile) =>
+        [Authorize(Policy = "ShouldBeSignedIn")]
+        [Route("subscribers")]
+        public async Task<IActionResult> GetAsync([FromQuery] string mobile) =>
             await this.mediator.SendAsync(
                 new GetSubscriberQuery { Mobile = mobile });
 
         [HttpGet]
-        [Route("subscribers")]
+        [Route("subscribers/active")]
         public async Task<IActionResult> GetActiveAsync() =>
             await this.mediator.SendAsync(
                 new GetActiveSubscribersQuery());
 
         [HttpPost]
+        [Authorize(Policy = "ShouldBeSignedIn")]
         [Route("subscribers")]
         public async Task<IActionResult> CreateAsync(Subscriber subscriber) =>
             await this.mediator.SendAsync(
@@ -40,13 +43,14 @@
                         Email = subscriber.Email,
                         Age = subscriber.Age,
                         Districts = subscriber.Districts,
-                        IsActive = true
+                        IsActive = subscriber.IsActive ?? false
                     }
                 },
-                successLogMessage: _ => "Successfully created Subscriber with Mobile: {mobile}.",
+                successLogMessage: _ => "Successfully created subscriber with mobile: {mobile}.",
                 successLogParameters: result => new string[] { result.Mobile });
 
         [HttpPut]
+        [Authorize(Policy = "ShouldBeSignedIn")]
         [Route("subscribers")]
         public async Task<IActionResult> UpdateAsync(Subscriber subscriber) =>
             await this.mediator.SendAsync(
@@ -59,10 +63,10 @@
                         Email = subscriber.Email,
                         Age = subscriber.Age,
                         Districts = subscriber.Districts,
-                        IsActive = true
+                        IsActive = subscriber.IsActive ?? false
                     }
                 },
-                successLogMessage: _ => "Successfully updated Subscriber with Mobile: {mobile}.",
+                successLogMessage: _ => "Successfully updated subscriber with mobile: {mobile}.",
                 successLogParameters: result => new string[] { result.Mobile });
     }
 }

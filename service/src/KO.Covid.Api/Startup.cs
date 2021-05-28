@@ -5,6 +5,7 @@ namespace KO.Covid.Api
     using Azure.Extensions.AspNetCore.Configuration.Secrets;
     using Azure.Identity;
     using Azure.Security.KeyVault.Secrets;
+    using KO.Covid.Api.Authorization;
     using KO.Covid.Api.Filters;
     using KO.Covid.Api.IoC;
     using KO.Covid.Application;
@@ -90,6 +91,11 @@ namespace KO.Covid.Api
                 });
 
             services.AddOptions();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("ShouldBeSignedIn", policy =>
+                    policy.Requirements.Add(new SubscriberAuthorizationRequirement()));
+            });
 
             var assembly = typeof(Startup).GetTypeInfo().Assembly;
             services.AddMediatR(assembly);
@@ -106,7 +112,7 @@ namespace KO.Covid.Api
                 this.Configuration["KOCCosmosAuthKey"],
                 this.Configuration["COSMOS_DATABASE_ID"],
                 this.Configuration["COSMOS_SUBSCRIBER_CONTAINER_ID"]);
-            
+
             services.AddSubscriberRepository(this.Configuration["COSMOS_SUBSCRIBER_CONTAINER_ID"]);
         }
 
@@ -137,6 +143,8 @@ namespace KO.Covid.Api
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
+            builder.RegisterModule(new AuthorizationModule());
+
             builder.RegisterModule(
                 new RequestHandlerModule(this.Configuration["COWIN_BASE_ADDRESS"]));
         }

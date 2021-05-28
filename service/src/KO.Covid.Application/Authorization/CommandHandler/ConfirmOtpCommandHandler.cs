@@ -52,7 +52,9 @@
                     $"OTP is either invalid or has expired for mobile: {request.Mobile}. Please re-generate.");
             }
 
+            credential.Otp = request.Otp;
             credential.Token = await this.GetTokenAsync(request, credential.TransactionId);
+            
             await this.credentialCache.SetAsync(
                 request.Mobile,
                 CredentialCacheDuration,

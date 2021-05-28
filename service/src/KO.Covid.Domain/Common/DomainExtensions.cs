@@ -13,7 +13,7 @@
             JsonConvert.DeserializeObject<T>(
                 JsonConvert.SerializeObject(source));
 
-        public static T GetValue<T>(this Dictionary<string, T> dictionary, string key)
+        public static T GetValue<T>(this IDictionary<string, T> dictionary, string key)
         {
             if (dictionary.TryGetValue(key, out T value))
             {

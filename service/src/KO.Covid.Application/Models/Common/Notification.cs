@@ -25,20 +25,20 @@
             {
                 return new Notification
                 {
-                    Centers = subscriber.LastNotifiedCenters,
+                    Centers = subscriber.NotifiedCenters,
                     Message = string.Empty
                 };
             }
 
             var newAvailableCenters = availableCenters
-                .Where(center => !subscriber.LastNotifiedCenters.Contains(center.CenterId.Value))
+                .Where(center => !subscriber.NotifiedCenters.Contains(center.CenterId.Value))
                 .ToList();
 
             if (newAvailableCenters.IsNullOrEmpty())
             {
                 return new Notification
                 {
-                    Centers = subscriber.LastNotifiedCenters,
+                    Centers = subscriber.NotifiedCenters,
                     Message = string.Empty
                 };
             }

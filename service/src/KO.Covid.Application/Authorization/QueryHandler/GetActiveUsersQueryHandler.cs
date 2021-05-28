@@ -28,9 +28,9 @@
                 result => result.FromJson<Dictionary<string, DateTime>>());
 
             return activeUsers
-                .Where(item => DateTime.Now <= item.Value)
-                .Select(item => item.Key)
-                .ToHashSet();
+                ?.Where(item => DateTime.Now <= item.Value)
+                ?.Select(item => item.Key)
+                ?.ToHashSet();
         }
     }
 }

@@ -7,6 +7,7 @@
     using KO.Covid.Domain;
     using KO.Covid.Domain.Entities;
     using MediatR;
+    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
@@ -32,8 +33,7 @@
             NotifyAppointmentsByDistrictCommand request,
             CancellationToken cancellationToken)
         {
-            var activeSubscribers = await this.mediator.Send(
-                new GetActiveSubscribersQuery());
+            var activeSubscribers = await this.mediator.Send(new GetActiveSubscribersQuery());
             if (activeSubscribers.IsNullOrEmpty())
             {
                 this.logger.LogInformation("No active subscribers found.");
@@ -60,7 +60,7 @@
                 // the availability of appointments is high.
                 //if (request.ShouldClearNotifications)
                 //{
-                    subscriber.LastNotifiedCenters.Clear();
+                subscriber.NotifiedCenters.Clear();
                 //}
 
                 var appointments = await this.GetAppointmentsAsync(subscriber, request.Date);
@@ -73,6 +73,7 @@
                     continue;
                 }
 
+                var notifyingTime = DateTime.Now;
                 await this.notifier.SendAsync(
                     subject: "Vaccination center(s) are now available for booking",
                     recepients: new List<string> { subscriber.Email },
@@ -80,8 +81,10 @@
 
                 notifiedSubscribers.Add(subscriber.Mobile);
 
-                subscriber.LastNotifiedCenters =
-                    subscriber.LastNotifiedCenters.AddRange(notification.Centers);
+                subscriber.NotifiedCenters =
+                    subscriber.NotifiedCenters.AddRange(notification.Centers);
+
+                subscriber.LastNotifiedOn = notifyingTime;
 
                 await this.mediator.Send(
                     new UpdateSubscriberCommand { Subscriber = subscriber });

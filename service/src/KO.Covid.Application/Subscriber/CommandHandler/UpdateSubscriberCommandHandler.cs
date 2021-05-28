@@ -4,6 +4,7 @@
     using KO.Covid.Application.Contracts;
     using KO.Covid.Domain.Entities;
     using MediatR;
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -25,8 +26,21 @@
             UpdateSubscriberCommand request,
             CancellationToken cancellationToken)
         {
-            var subscriber = await this.repository.UpdateItemAsync(request.Subscriber.AddId());
-            
+            var existingSubscriber = await this.mediator.Send(
+                new GetSubscriberQuery { Mobile = request.Subscriber.Mobile });
+
+            if (existingSubscriber == default)
+            {
+                throw new ArgumentException(
+                    $"Could not find an existing subscriber with mobile: {request.Subscriber.Mobile}.");
+            }
+
+            var subscriberToUpdate = request.Subscriber.AddId();
+            subscriberToUpdate.NotifiedCenters = existingSubscriber.NotifiedCenters;
+            subscriberToUpdate.LastNotifiedOn = existingSubscriber.LastNotifiedOn;
+
+            var subscriber = await this.repository.UpdateItemAsync(subscriberToUpdate);
+
             await this.mediator.Send(
                 new AddActiveUserCommand { Mobile = subscriber.Mobile });
 

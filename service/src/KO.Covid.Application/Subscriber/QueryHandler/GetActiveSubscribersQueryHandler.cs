@@ -28,9 +28,7 @@
             GetActiveSubscribersQuery request,
             CancellationToken cancellationToken)
         {
-            var activeUsers = await this.mediator.Send(
-                new GetActiveUsersQuery());
-
+            var activeUsers = await this.mediator.Send(new GetActiveUsersQuery());
             if (activeUsers.IsNullOrEmpty())
             {
                 return null;
@@ -39,7 +37,9 @@
             var subscribers = await this.repository.GetItemsAsync(
                 item => activeUsers.Contains(item.Mobile));
 
-            return subscribers?.ToList();
+            return subscribers
+                ?.Where(subscriber => subscriber.IsActive.HasValue && subscriber.IsActive.Value)
+                ?.ToList();
         }
     }
 }

@@ -38,9 +38,9 @@
                 result => result.FromJson<Dictionary<string, DateTime>>());
 
             var validTokens = tokens
-                .Where(item => DateTime.Now <= item.Value)
-                .Select(item => item.Key)
-                .ToList();
+                ?.Where(item => DateTime.Now <= item.Value)
+                ?.Select(item => item.Key)
+                ?.ToList();
 
             if (validTokens.IsNullOrEmpty())
             {
