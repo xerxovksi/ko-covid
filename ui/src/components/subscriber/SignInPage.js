@@ -43,6 +43,7 @@ function SignInPage() {
       await get(`confirmotp/${mobile}/${otp}`);
       setRedirect({
         pathname: `/subscribers/${mobile}`,
+        state: { mobile, otp },
       });
     } catch (error) {
       toast.error("Failed to authorize. Please enter the generated OTP.", {

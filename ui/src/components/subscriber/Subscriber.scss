@@ -7,3 +7,10 @@
 
   @include flex(center);
 }
+
+.subscriber-loading {
+  height: 40vh;
+  text-align: center;
+
+  @include flex(center);
+}

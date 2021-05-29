@@ -1,15 +1,15 @@
 import { configuration } from "../constants";
 
-const getHeaders = (mobile) => {
-  return { "content-type": "application/json", mobile };
+const getHeaders = (mobile, otp) => {
+  return { "content-type": "application/json", mobile, otp };
 };
 
-export async function get(apiUrl, mobile) {
+export async function get(apiUrl, mobile, otp) {
   try {
     return await handleResponse(
       await fetch(`${configuration.api.url}/api/${apiUrl}`, {
         method: "GET",
-        headers: getHeaders(mobile),
+        headers: getHeaders(mobile, otp),
       })
     );
   } catch (error) {
@@ -17,13 +17,13 @@ export async function get(apiUrl, mobile) {
   }
 }
 
-export async function add(apiUrl, payload, mobile) {
+export async function add(apiUrl, payload, mobile, otp) {
   try {
     return await handleResponse(
       await fetch(`${configuration.api.url}/api/${apiUrl}`, {
         method: "POST",
         body: JSON.stringify(payload),
-        headers: getHeaders(mobile),
+        headers: getHeaders(mobile, otp),
       })
     );
   } catch (error) {
@@ -31,13 +31,13 @@ export async function add(apiUrl, payload, mobile) {
   }
 }
 
-export async function update(apiUrl, payload, mobile) {
+export async function update(apiUrl, payload, mobile, otp) {
   try {
     return handleResponse(
       await fetch(`${configuration.api.url}/api/${apiUrl}`, {
         method: "PATCH",
         body: JSON.stringify(payload),
-        headers: getHeaders(mobile),
+        headers: getHeaders(mobile, otp),
       })
     );
   } catch (error) {
@@ -45,11 +45,11 @@ export async function update(apiUrl, payload, mobile) {
   }
 }
 
-export async function remove(apiUrl, mobile) {
+export async function remove(apiUrl, mobile, otp) {
   try {
     return await fetch(`${configuration.api.url}/api/${apiUrl}`, {
       method: "DELETE",
-      headers: getHeaders(mobile),
+      headers: getHeaders(mobile, otp),
     });
   } catch (error) {
     handleError(error);

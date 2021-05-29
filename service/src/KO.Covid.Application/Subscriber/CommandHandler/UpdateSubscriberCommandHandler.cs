@@ -41,7 +41,7 @@
                 ? request.Subscriber.NotifiedCenters
                 : existingSubscriber.NotifiedCenters;
             
-            subscriberToUpdate.LastNotifiedOn = existingSubscriber.LastNotifiedOn.HasValue
+            subscriberToUpdate.LastNotifiedOn = request.Subscriber.LastNotifiedOn.HasValue
                 ? request.Subscriber.LastNotifiedOn
                 : existingSubscriber.LastNotifiedOn;
 
