@@ -92,6 +92,10 @@
         private static void AddSubscriberHandlers(this IServiceCollection services)
         {
             services.AddScoped(
+                typeof(IRequestHandler<GetSubscriberQuery, Subscriber>),
+                typeof(GetSubscriberQueryHandler));
+
+            services.AddScoped(
                 typeof(IRequestHandler<GetActiveSubscribersQuery, List<Subscriber>>),
                 typeof(GetActiveSubscribersQueryHandler));
 

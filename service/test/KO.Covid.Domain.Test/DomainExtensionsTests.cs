@@ -2,6 +2,7 @@
 {
     using FluentAssertions;
     using KO.Covid.Domain.Test.Models;
+    using System.Collections.Generic;
     using Xunit;
 
     public class DomainExtensionsTests
@@ -50,6 +51,32 @@
 
             // Assert
             result.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void AddRange_ShouldAddRangeOf_UniqueElements_ToHashSet()
+        {
+            // Arrange
+            var originalSet = new HashSet<string>
+            {
+                "2", "3", "5", "7", "11", "13"
+            };
+
+            var newSet = new HashSet<string>
+            {
+                "11", "13", "15", "17", "19"
+            };
+
+            var expectedResultSet = new HashSet<string>
+            {
+                "2", "3", "5", "7", "11", "13", "15", "17", "19"
+            };
+
+            // Act
+            var resultSet = originalSet.AddRange(newSet);
+
+            // Assert
+            resultSet.Should().BeEquivalentTo(expectedResultSet);
         }
     }
 }

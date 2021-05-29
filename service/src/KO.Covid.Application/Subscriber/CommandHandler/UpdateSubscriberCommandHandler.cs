@@ -1,7 +1,7 @@
 ﻿namespace KO.Covid.Application.Subscriber
 {
-    using KO.Covid.Application.Authorization;
     using KO.Covid.Application.Contracts;
+    using KO.Covid.Domain;
     using KO.Covid.Domain.Entities;
     using MediatR;
     using System;
@@ -36,15 +36,16 @@
             }
 
             var subscriberToUpdate = request.Subscriber.AddId();
-            subscriberToUpdate.NotifiedCenters = existingSubscriber.NotifiedCenters;
-            subscriberToUpdate.LastNotifiedOn = existingSubscriber.LastNotifiedOn;
+            
+            subscriberToUpdate.NotifiedCenters = !request.Subscriber.NotifiedCenters.IsNullOrEmpty()
+                ? request.Subscriber.NotifiedCenters
+                : existingSubscriber.NotifiedCenters;
+            
+            subscriberToUpdate.LastNotifiedOn = existingSubscriber.LastNotifiedOn.HasValue
+                ? request.Subscriber.LastNotifiedOn
+                : existingSubscriber.LastNotifiedOn;
 
-            var subscriber = await this.repository.UpdateItemAsync(subscriberToUpdate);
-
-            await this.mediator.Send(
-                new AddActiveUserCommand { Mobile = subscriber.Mobile });
-
-            return subscriber;
+            return await this.repository.UpdateItemAsync(subscriberToUpdate);
         }
     }
 }
